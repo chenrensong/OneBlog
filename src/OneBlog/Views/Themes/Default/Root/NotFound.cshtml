@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Path Not Found - 花纷飞";
+    ViewBag.PageName = "Page Not Found";
+    ViewBag.ControllerName = "Root";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <style type="text/css">
+        div, body, p, h3 {
+            margin: 0;
+            padding: 0
+        }
+        a {
+            text-decoration: none;
+        }
+
+        body {
+            font: 12px/1.5 tahoma,Arial
+        }
+
+        img {
+            display: block;
+            margin: 40px auto 0;
+            text-align: center;
+            height: 370px;
+        }
+
+        .status {
+            font-size: 22px;
+            color: #657077;
+            text-align: center;
+            margin: 10px 0 2px 0;
+        }
+
+        p {
+            font-size: 14px;
+            color: #657077;
+            text-align: center;
+        }
+
+        .return {
+            width: 176px;
+            height: 32px;
+            background-color: #54a9ff;
+            color: #fff;
+            display: block;
+            text-align: center;
+            line-height: 32px;
+            margin: 20px auto 0;
+            border-radius: 4px;
+        }
+
+        .action {
+            font-size: 13px;
+            margin: 10px auto;
+            text-align: center;
+        }
+
+            .action a {
+                color: #007ec8;
+                margin: 14px;
+            }
+
+                .action a > i {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    vertical-align: bottom;
+                    margin-right: 4px;
+                }
+
+        .refresh > i {
+            background: url('/static/img/refresh.png') no-repeat;
+        }
+
+        .contact > i {
+            background: url('/static/img/concat.png') no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <div class="404">
+        <img src="~/static/img/NotFound.png">
+        <h3 class="status">404!</h3>
+        <p class="tip">您访问的页面已丢失，我们正在外太空寻找</p>
+        <div class="action">
+            <a class="refresh" href="javascritp:void(0);" onclick="window.location.reload(true);return false">
+                <i></i>尝试刷新
+            </a>
+            <a class="contact" asp-controller="Root" asp-action="contact">
+                <i></i>联系我们
+            </a>
+        </div>
+        <a class="return" asp-controller="Root" asp-action="Index">返回首页</a>
+    </div>
+</body>
+</html>

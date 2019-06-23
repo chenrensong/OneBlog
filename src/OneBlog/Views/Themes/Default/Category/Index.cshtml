@@ -1,0 +1,16 @@
+﻿@using Microsoft.Extensions.Options
+@using OneBlog.Configuration
+@model IPagedList<PostItem>
+@inject IOptions<AppSettings> AppSettings
+@{
+    ViewBag.Title = $"{ViewBag.Category}";
+}
+<section class="col-lg-8 blog-content">
+    <div class="content-header">
+        <h2>@ViewBag.Category</h2>
+    </div>
+    <hr>
+    @await Html.PartialAsync("_Loop", Model.Items)
+    @await Html.PartialAsync("_Pager")
+</section>
+

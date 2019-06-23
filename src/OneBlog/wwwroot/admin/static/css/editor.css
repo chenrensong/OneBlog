@@ -1,0 +1,382 @@
+﻿.media-img-cropper {
+    display: inline-block;
+    position: relative
+}
+
+    .media-img-cropper .title-container {
+        display: inline-block;
+        vertical-align: top;
+        line-height: 91px;
+        font-size: 16px;
+        font-weight: 400;
+        color: #65707e
+    }
+
+    .media-img-cropper .main-container {
+        display: inline-block;
+        position: relative
+    }
+
+    .media-img-cropper .required {
+        color: red;
+        vertical-align: -3px
+    }
+
+    .media-img-cropper .tip {
+        color: #bdc2c9;
+        font-size: 12px;
+        word-break: break-all
+    }
+
+.crop-modal-background {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    top: 0;
+    right: 0;
+    z-index: 999;
+    overflow: auto;
+    background-color: rgba(0,0,0,.3);
+    display: none
+}
+
+.crop-modal-background {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+    overflow: auto;
+    background-color: rgba(0,0,0,.3);
+    text-align: center;
+    display: none
+}
+
+    .crop-modal-background .popup {
+        margin: 50px 0;
+        display: inline-block;
+        box-shadow: 0 0 5px #666;
+        background-color: #fff
+    }
+
+    .crop-modal-background .popup-header {
+        text-align: center;
+        font-size: 18px;
+        border-bottom: 1px solid #ddd;
+        line-height: 50px;
+        font-family: sans-serif
+    }
+
+    .crop-modal-background .popup-body {
+        margin: 30px
+    }
+
+    .crop-modal-background .popup-footer {
+        margin: 20px;
+        text-align: center
+    }
+
+        .crop-modal-background .popup-footer .btn {
+            margin: 0 10px;
+            font-family: sans-serif
+        }
+
+    .crop-modal-background .btn {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 0 20px;
+        margin: 0;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        color: #333;
+        background: #f5f5f5;
+        border: solid 1px #c6c6c6;
+        vertical-align: middle;
+        cursor: pointer;
+        text-decoration: none;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+        font-weight: 400;
+        color: #fff
+    }
+
+    .crop-modal-background .btn-primary {
+        background-color: #4497ff;
+        border: 1px solid #4497ff
+    }
+
+        .crop-modal-background .btn-primary:hover {
+            background-color: #3f8ef1;
+            border: 1px solid #3f8ef1
+        }
+
+.media-img-cropper .image-preview {
+    float: left;
+    background: url(../img/add-cover-white.jpg) center no-repeat #fff;
+    background-size: 100% 100%;
+    width: 121px;
+    height: 91px;
+    border: 1px solid #ccc;
+    list-style: none;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px
+}
+
+    .media-img-cropper .image-preview canvas {
+        display: none
+    }
+
+.media-img-cropper .bc-blue {
+    background: url(../img/add-cover-white.jpg) center no-repeat #fff;
+    background-size: 100% 100%
+}
+
+.media-img-cropper .btn-txt {
+    position: relative
+}
+
+.media-img-cropper .btn {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    font-size: 20px;
+    border-radius: 1px;
+    vertical-align: middle
+}
+
+    .media-img-cropper .btn .progress-content {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: .5;
+        position: absolute
+    }
+
+.media-img-cropper .progress-content .bar {
+    width: 0;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    background-color: #4999FC;
+    height: 10px
+}
+
+.media-img-cropper .btn-primary {
+    text-align: center;
+    display: inline-block;
+    color: #fff;
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
+    font-weight: 400;
+    width: 90px;
+    padding: 0;
+    margin: 0;
+    box-sizing: content-box;
+    background: #4497ff;
+    vertical-align: middle;
+    cursor: pointer;
+    text-decoration: none;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px
+}
+
+.media-img-cropper .js-fileapi-wrapper {
+    position: relative;
+    float: left
+}
+
+    .media-img-cropper .js-fileapi-wrapper .progress-percent {
+        position: relative;
+        top: -100%;
+        z-index: 5;
+        color: #fff;
+        text-align: center;
+        font-size: 16px;
+        line-height: 90px
+    }
+
+    .media-img-cropper .js-fileapi-wrapper .js-browse {
+        position: relative;
+        overflow: hidden
+    }
+
+    .media-img-cropper .js-fileapi-wrapper input {
+        position: absolute;
+        left: 0;
+        z-index: 2;
+        height: 100%;
+        cursor: pointer;
+        opacity: 0
+    }
+
+    .media-img-cropper .js-fileapi-wrapper .js-upload {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 10;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        border: 2px solid #4497ff
+    }
+
+.media-img-cropper .js-upload .success-icon {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -19px 0 0 -12px;
+    width: 37px;
+    height: 25px;
+    background-image: url(//bjh.bdstatic.com/bjh/content/static/img/success-icon-white_f1f1603.png)
+}
+
+.media-img-cropper .js-fileapi-wrapper .js-upload-hover {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 2px solid #4497ff
+}
+
+.media-img-cropper .js-upload-hover .btns {
+    position: absolute;
+    bottom: 0;
+    z-index: 8;
+    width: 100%;
+    height: 31px;
+    color: #fff;
+    text-align: center
+}
+
+.media-img-cropper .js-upload-hover .delete-icon {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    background-image: url(../img/delete-icon-red_2aead0f.png)
+}
+
+.media-img-cropper .js-upload-hover .icons {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0
+}
+
+.media-img-cropper .js-upload-hover .zoomin-icon, .js-upload-hover .upload-icon {
+    display: inline-block;
+    width: 45%;
+    height: 100%;
+    padding-top: 5px;
+    box-sizing: border-box;
+    cursor: pointer
+}
+
+    .media-img-cropper .js-upload-hover .zoomin-icon i, .js-upload-hover .upload-icon i {
+        display: inline-block;
+        width: 20px;
+        height: 20px
+    }
+
+    .media-img-cropper .js-upload-hover .zoomin-icon i {
+        background-image: url(../img/zoomin-icon_4dedff0.png)
+    }
+
+.media-img-cropper .js-upload-hover .upload-icon i {
+    background-image: url(../img/arrow-up-icon_4542acd.png)
+}
+
+.media-img-cropper .js-fileapi-wrapper .cover {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: .6
+}
+
+.media-img-cropper .warn {
+    display: block;
+    margin-top: 10px;
+    color: red;
+    font-size: 12px
+}
+
+
+
+/* Content */
+
+.img-container,
+.img-preview {
+    background-color: #f7f7f7;
+    width: 100%;
+    text-align: center;
+}
+
+.img-container {
+    min-height: 200px;
+    max-height: 469px;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .img-container {
+        min-height: 369px;
+    }
+}
+
+.img-container > img {
+    max-width: 100%;
+}
+
+.docs-preview {
+    margin-right: -1rem;
+}
+
+.img-preview {
+    float: left;
+    margin-right: .5rem;
+    margin-bottom: .5rem;
+    overflow: hidden;
+}
+
+    .img-preview > img {
+        max-width: 100%;
+    }
+
+.preview-lg {
+    width: 16rem;
+    height: 9rem;
+}
+
+.preview-md {
+    width: 8rem;
+    height: 4.5rem;
+}
+
+.preview-sm {
+    width: 4rem;
+    height: 2.25rem;
+}
+
+.preview-xs {
+    width: 2rem;
+    height: 1.125rem;
+    margin-right: 0;
+}

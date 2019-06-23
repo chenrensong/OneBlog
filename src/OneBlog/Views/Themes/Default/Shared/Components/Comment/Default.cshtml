@@ -1,0 +1,48 @@
+﻿@model OneBlog.ViewModels.CommentViewModel
+@inject UserManager<AppUser> UserManager
+@{
+    var CurrentUser = await UserManager.GetUserAsync(User);
+}
+
+<div id="comment-box" class="well-global">
+    <div id="comment-form">
+        @*<span id="status" class="success">Thank you for the feedback. The comment is now awaiting moderation</span>*@
+        <span id="status"></span>
+        <div class="comment-form well-global">
+            <h3 class="well-global-title" id="addcomment">Comment</h3>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Your Name" asp-for="UserName">
+            </div>
+            <div class="form-group">
+                <input type="text" placeholder="Email" class="form-control" asp-for="Email">
+            </div>
+            <div class="form-group" id="commentCompose">
+                <textarea class="form-control" placeholder="Say something..." cols="50" rows="7" asp-for="Content"></textarea>
+            </div>
+            <div id="commentCaptcha" class="form-group">
+                <label for="simpleCaptchaValue">
+                    <img id="captchaImg" style="max-width:none;" onclick="this.src ='@Url.Action("Captcha", "Root")?t='+ Math.floor(Math.random() * 10000);" src="@Url.Action("Captcha", "Root")" />
+                </label>
+                <input class="simpleCaptcha" type="text" tabindex="0" maxlength="30" placeholder="Enter the captcha code" asp-for="Captcha">
+            </div>
+
+            <button id="btnSaveAjax" onclick="return BlogEngine.validateAndSubmitCommentForm()" type="submit" class="btn btn-primary btn-block ladda-button" data-style="expand-left">保存评论</button>
+
+            <input type="hidden" name="hiddenReplyTo" id="hiddenReplyTo" />
+            @Html.HiddenFor(m => m.PostId)
+            <p id="cancelReply" style="display: none;">
+                <a href="javascript:void(0);" onclick="BlogEngine.cancelReply();">取消对该留言的回复</a>
+            </p>
+        </div>
+
+    </div>
+
+    <div id="commentlist" style="display: block">
+        @foreach (var item in Model.Comments)
+        {
+            @Html.Partial("_Comment", item)
+        }
+    </div>
+</div>
+
+

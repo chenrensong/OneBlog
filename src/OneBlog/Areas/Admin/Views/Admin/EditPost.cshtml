@@ -1,0 +1,462 @@
+﻿@using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Routing
+@inject IOptions<AppSettings> AppSettings
+
+<div class="content" ng-controller="PostEditorController">
+    <button tabindex="-1" class="sidebar-toggle"><span></span><span></span><span></span></button>
+    <div class="content-posts-new-view">
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-times"></i></button>
+                        <h4 class="modal-title">Other Features</h4>
+                    </div>
+                    <div class="modal-body modal-roles">
+                        <div class="form-group">
+                            <label><input type="checkbox" data-ng-model="lookups.PostOptions.ShowAuthors" ng-true-value="true" ng-false-value="false" /> Authors List </label>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" data-ng-model="lookups.PostOptions.ShowSlug" ng-true-value="true" ng-false-value="false" /> Slug Field </label>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" data-ng-model="lookups.PostOptions.ShowDescription" ng-true-value="true" ng-false-value="false" /> Description Field </label>
+                        </div>
+                        <div class="form-group">
+                            <label><input type="checkbox" data-ng-model="lookups.PostOptions.ShowCustomFields" ng-true-value="true" ng-false-value="false" /> Custom Field <a href="http://www.dnbe.net/docs/post/custom-fields" target="_blank">(Learn more)</a> </label>
+                        </div>
+                        <div class="modal-buttons">
+                            <button type="button" data-ng-click="saveEditOptions()" class="btn btn-success">{{lbl.save}}</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="focusInput=false">{{lbl.cancel}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-file" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="focusInput=false"><i class="fa fa-times"></i></button>
+                        <h4 class="modal-title">{{lbl.addNewCategory}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <iframe width="420" height="345" ng-src='{{givenUrl}}'></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-image-cropper" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="focusInput=false"><i class="fa fa-times"></i></button>
+                        <h4 class="modal-title">上传图片</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="img-container">
+                            <img id="image">
+                        </div>
+                        <div class="modal-buttons">
+                            <button id="btnPostFile" data-color="green" data-style="expand-left" class="ladda-button btn btn-success">上传</button>
+                            <button id="btnSourceFile" data-color="green" data-style="expand-left" class="ladda-button btn btn-success">原图上传</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="focusInput=false">{{lbl.cancel}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <form id="cat-form">
+            <div id="modal-add-cat" class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="focusInput=false"><i class="fa fa-times"></i></button>
+                            <h4 class="modal-title">{{lbl.addNewCategory}}</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="txtCatTitle">{{lbl.title}}</label>
+                                <input type="text" class="form-control" id="txtCatTitle" name="txtCatTitle" data-ng-model="category.Title" focus-me="focusInput" />
+                            </div>
+                            <div class="form-group">
+                                <label for="txtExcerpt">{{lbl.description}}</label>
+                                <textarea class="form-control" id="txtExcerpt" rows="4" name="txtExcerpt" data-ng-model="category.Description"> </textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="selAuthors">{{lbl.parent}}</label>
+                                <select id="selAuthors" class="form-control" data-ng-options="o.OptionValue as o.OptionName for o in lookups.CategoryList" data-ng-model="category.Parent.OptionValue">
+                                    <option value="">-- {{lbl.select.toLowerCase()}} --</option>
+                                </select>
+                            </div>
+                            <div class="modal-buttons">
+                                <button type="button" ng-click="saveCategory()" class="btn btn-success">{{lbl.add}}</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="focusInput=false">{{lbl.cancel}}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div id="modal-custom-fields" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="focusInput=false"><i class="fa fa-times"></i></button>
+                        <h4 class="modal-title">{{lbl.add}} {{lbl.customFields}}</h4>
+                    </div>
+                    <div class="modal-body modal-roles">
+                        <div class="form-group">
+                            <label class="control-label" for="txtKey">Key</label>
+                            <input type="text" id="txtKey" name="txtKey" class="form-control" data-ng-model="editItem.Key" focus-me="focusInput" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="txtValue">Value</label>
+                            <input type="text" id="txtValue" name="txtValue" class="form-control" data-ng-model="editItem.Value" />
+                        </div>
+                        <div class="modal-buttons">
+                            <button type="button" data-ng-click="addCustom()" class="btn btn-success">{{lbl.add}}</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="focusInput=false">{{lbl.cancel}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* please do not remove this main-header we used it in mobile size. *@
+        <div class="main-header clearfix">
+            <span ng-if="post.Id"><a href="{{post.RelativeLink}}" class="btn btn-sm btn-hasicon btn-success pull-left" target="_blank"><i class="fa fa-eye"></i> {{lbl.goToPost}}</a></span>
+            <span ng-if="post.Id && post.IsPublished"><a href="#" class="btn btn-sm btn-hasicon btn-warning pull-left" ng-click="publish(false)"><i class="fa fa-undo"></i> {{lbl.unpublish}}</a></span>
+            <a ng-if="status() < 2" href="#" data-ng-click="publish(true)" class="btn btn-sm btn-hasicon btn-success pull-left"><i class="fa fa-check"></i>{{lbl.publish}}</a>
+            <a ng-if="status() == 2" href="#" data-ng-click="save()" class="btn btn-sm btn-hasicon btn-primary pull-left"><i class="fa fa-save"></i>{{lbl.save}}</a>
+            <span ng-if="status() < 2"><a href="#" ng-click="save()" class="btn btn-sm btn-hasicon btn-primary pull-left"><i class="fa fa-save"></i> {{lbl.save}}</a></span>
+            <a href="" onclick="window.history.back()" class="btn btn-sm btn-hasicon btn-default pull-left"><i class="fa fa-ban"></i>{{lbl.cancel}}</a>
+            <span id="spinner" class="loaded pull-right"><i class='fa fa-spinner fa-spin fa-large'></i></span>
+        </div>
+        <div class="content-inner">
+            <form id="form" action="">
+                <div class="newpost-wrapper">
+                    <div class="newpost-content">
+                        <div class="newpost-title"><input type="text" id="txtTitle" name="txtTitle" autocomplete="off" placeholder="{{lbl.titleOfPost}}..." class="form-control" data-ng-model="post.Title" /></div>
+                        <div class="editor-wrapper">
+                            <textarea style="height:480px; width:100%;" id="txtContent" class="post"></textarea>
+                        </div>
+
+                        <div class="newpost-widget">
+                            <label class="newpost-widget-title">封面(三图封面会更吸引读者)</label>
+                            <br />
+                            <input type="file" id="btn_file" style="display:none">
+
+                            <div class="media-img-cropper cover1" data-num="1">
+                                <div class="main-container">
+                                    <div id="cover1-img-cropper-container">
+                                        <div id="cover1-img-cropper" class="imageupload">
+                                            <div class="js-fileapi-wrapper">
+                                                <div class="js-browse" data-num="1">
+                                                    <span class="image-preview js-preview" style=""></span>
+                                                </div>
+                                                <div id="cover1" class="js-upload-hover" data-src="" data-origin_src="" style="display: none;">
+                                                    <div class="cover"></div>
+                                                    <i class="delete-icon"></i>
+                                                    <div class="btns">
+                                                        <div class="cover"></div>
+                                                        <div class="icons">
+                                                            <a class="js-icon-preview" href="javascript:void(0)" target="_blank"><span class="zoomin-icon"><i></i></span></a>
+                                                            <span class="upload-icon"><i></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="warn"></div>
+                                </div>
+                            </div>
+
+                            <div class="media-img-cropper cover2" data-num="2">
+                                <div class="main-container">
+                                    <div id="cover2-img-cropper-container">
+                                        <div id="cover2-img-cropper" class="imageupload">
+                                            <div class="js-fileapi-wrapper">
+                                                <div class="js-browse" data-num="2">
+                                                    <span class="image-preview js-preview" style=""></span>
+                                                </div>
+                                                <div id="cover2" class="js-upload-hover" data-src="" data-origin_src="" style="display: none;">
+                                                    <div class="cover"></div>
+                                                    <i class="delete-icon"></i>
+                                                    <div class="btns">
+                                                        <div class="cover"></div>
+                                                        <div class="icons">
+                                                            <a class="js-icon-preview" href="javascript:void(0)" target="_blank"><span class="zoomin-icon"><i></i></span></a>
+                                                            <span class="upload-icon"><i></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="warn"></div>
+                                </div>
+                            </div>
+
+                            <div class="media-img-cropper cover3" data-num="3">
+                                <div class="main-container">
+                                    <div id="cover3-img-cropper-container">
+                                        <div id="cover3-img-cropper" class="imageupload">
+                                            <div class="js-fileapi-wrapper">
+                                                <div class="js-browse" data-num="3">
+                                                    <span class="image-preview js-preview" style=""></span>
+                                                </div>
+                                                <div id="cover3" class="js-upload-hover" data-src="" data-origin_src="">
+                                                    <div class="cover"></div>
+                                                    <i class="delete-icon"></i>
+                                                    <div class="btns">
+                                                        <div class="cover"></div>
+                                                        <div class="icons">
+                                                            <a class="js-icon-preview" href="javascript:void(0)" target="_blank"><span class="zoomin-icon"><i></i></span></a>
+                                                            <span class="upload-icon"><i></i></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="warn"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="newpost-widget" data-ng-show="lookups.PostOptions.ShowSlug">
+                            <label class="newpost-widget-title">{{lbl.slug}}</label>
+                            <input type="text" class="form-control form-control-sm" id="txtSlug" data-ng-model="post.Slug" />
+                        </div>
+                        <div class="newpost-widget" data-ng-show="lookups.PostOptions.ShowDescription">
+                            <label class="newpost-widget-title">{{lbl.description}}</label>
+                            <textarea class="form-control form-control-sm" rows="4" id="txtExcerpt" data-ng-model="post.Description"> </textarea>
+                        </div>
+                    </div>
+                    <div class="newpost-sidebar">
+                        <div class="newpost-sidebar-content">
+                            <div class="newpost-sidebar-buttons">
+                                <span ng-if="post.Id"><a href="{{post.RelativeLink}}" class="btn btn-sm btn-block btn-success" target="_blank">{{lbl.goToPost}}</a></span>
+                                <span ng-if="post.Id && post.IsPublished"><a href="#" class="btn btn-sm btn-block btn-warning" ng-click="publish(false)">{{lbl.unpublish}}</a></span>
+                                <a ng-if="status() < 2" href="#" data-ng-click="publish(true)" class="btn btn-sm btn-block btn-success">{{lbl.publish}}</a>
+                                <a ng-if="status() == 2" href="#" data-ng-click="save()" class="btn btn-sm btn-block btn-primary">{{lbl.save}}</a>
+                                <span ng-if="status() < 2"><a href="#" ng-click="save()" class="btn btn-sm btn-block btn-primary">{{lbl.save}}</a></span>
+                                <a href="" onclick="window.history.back()" class="btn btn-block btn-sm btn-default">{{lbl.cancel}}</a>
+                                <span id="spinner" class="loaded"><i class='fa fa-spinner fa-spin fa-large'></i></span>
+                                <hr />
+                            </div>
+                            <div class="newpost-widget newpost-widget-categories">
+                                <label class="newpost-widget-title">{{lbl.categories}}</label>
+                                <a angular-tooltip tooltip="lbl.add" class="pull-right add-cat" ng-click="addCagegory()"><i class="fa fa-plus fa-sm"></i></a>
+                                <ul class="categories-list">
+                                    <li ng-repeat="cat in lookups.CategoryList"><label><input type="checkbox" id="cat-{{cat.OptionValue}}" data-ng-model="cat.IsSelected" /> {{cat.OptionName}}</label></li>
+                                    <li ng-if="lookups.CategoryList.length == 0" class="item-empty">{{lbl.empty}}</li>
+                                </ul>
+                            </div>
+                            <div class="newpost-widget newpost-widget-categories">
+                                <label class="newpost-widget-title">地图坐标</label>
+                                <a angular-tooltip tooltip="lbl.add" class="pull-right add-cat" target="_blank" href="http://api.map.baidu.com/lbsapi/getpoint/index.html"><i class="fa fa-map fa-sm"></i></a>
+                                <input type="text" class="form-control form-control-sm" id="txtCoordinate" name="txtCoordinate" data-ng-model="post.Coordinate" />
+                            </div>
+                            <div class="newpost-widget">
+                                <label class="newpost-widget-title">地图地址</label>
+                                <input type="text" class="form-control form-control-sm" id="txtAddress" name="txtAddress" data-ng-model="post.Address" />
+                            </div>
+                            <div class="newpost-widget">
+                                <label class="newpost-widget-title">{{lbl.tags}}</label>
+                                <div class="post-tags-selector">
+                                    <textarea id="postTags" class="form-control" style="width:100%;" placeholder="{{lbl.typeAndEnter}}..." rows="1"></textarea>
+                                </div>
+                            </div>
+                            <div class="newpost-widget">
+                                <label class="newpost-widget-title">{{lbl.date}}</label>
+                                <input type="text" class="form-control form-control-sm dateFormatted" id="txtDate" name="txtDate" data-ng-model="post.DateCreated" />
+                            </div>
+                            <div class="newpost-widget" data-ng-show="lookups.PostOptions.ShowAuthors">
+                                <label class="newpost-widget-title">{{lbl.author}}</label>
+                                <select id="selAuthors" class="form-control  form-control-sm" data-ng-options="o.OptionName for o in lookups.AuthorList" data-ng-model="selectedAuthor"></select>
+                            </div>
+                            <div class="newpost-widget" data-ng-show="lookups.PostOptions.ShowCustomFields">
+                                <label class="newpost-widget-title">
+                                    {{lbl.customFields}}
+                                </label>
+                                <button type="button" class="btn btn-default btn-sm btn-block" id="btnCustomFields" ng-click="showCustom()" data-toggle="modal">{{lbl.add}}</button>
+                                <div id="frm-custom-edit" ng-if="customFields && customFields.length > 0">
+                                    <div class="newpost-custom-fields" data-ng-repeat="item in customFields">
+                                        <div class="field-name text-ellipsis">{{item.Key}}</div>
+                                        <input type="text" class="form-control" data-ng-model="item.Value" />
+                                        <button class="field-remove" ng-click="deleteCustom(item.Key, item.ObjectId)" title="{{lbl.doDelete}}"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="newpost-widget newpost-comments">
+                                <label class="enable-comment"><input type="checkbox" name="ckEnableComments" data-ng-model="post.HasCommentsEnabled" />{{lbl.enableComments}}</label>
+                            </div>
+                            <div class="newpost-widget newpost-comments">
+                                <label class="enable-comment"><input type="checkbox" name="ckEnableRecommend" data-ng-model="post.HasRecommendEnabled" />置顶推荐</label>
+                            </div>
+                            <hr />
+                            <a class="btn btn-sm btn-hasicon btn-block btn-default" data-toggle="modal" data-target="#myModal"><i class="fa fa-sliders"></i> Customize</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/cropper/dist/cropper.js"></script>
+
+@*<script src="~/lib/jquery-cropper/dist/jquery-cropper.min.js"></script>*@
+<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+<script src="~/lib/jqueri-ui/jquery-ui.min.js"></script>
+<script src="~/lib/jquery.validate/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-form/dist/jquery.form.min.js"></script>
+<script src="~/lib/toastr/toastr.min.js"></script>
+<script src="~/js/textext.js"></script>
+<script src="~/lib/moment/moment.js"></script>
+<script src="~/lib/angular/angular.min.js"></script>
+<script src="~/lib/angular-route/angular-route.min.js"></script>
+<script src="~/lib/angular-sanitize/angular-sanitize.min.js"></script>
+<script src="~/lib/ladda/dist/spin.min.js"></script>
+<script src="~/lib/ladda/dist/ladda.min.js"></script>
+<script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
+
+
+<script src="~/admin/app/app.js"></script>
+<script src="~/admin/app/common.js"></script>
+
+
+@if (AppSettings.Value.EditorType == EditorType.Html)
+{
+    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.all.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.service.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/i18n/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript" src="~/editors/neditor/third-party/SyntaxHighlighter/shCore.js"></script>
+    <script type="text/javascript" src="~/editors/neditor/third-party/browser-md5-file.min.js"></script>
+
+    <script>
+        //初始化编辑器
+        var editor = UE.getEditor('txtContent', {
+            autoHeightEnabled: true,
+            autoFloatEnabled: true
+        });
+        var editorGetHtml = function () {
+            return editor.getContent();
+        }
+        var editorSetHtml = function (html) {
+            if (!editor) {
+                return;
+            }
+            editor.setContent(html, false);
+        }
+    </script>
+
+}
+else
+{
+    <script type="text/javascript" src="~/editors/simplemde/dist/simplemde.min.js"></script>
+    <script>
+        function getEditor() {
+            var simplemde = new SimpleMDE({
+                toolbar: [
+                    "bold", "italic", "heading-2", "|",
+                    "quote", "unordered-list", "ordered-list", "|",
+                    //"link", "code",
+                    //{
+                    //    name: "insertImg",
+                    //    action: openFileMgr,
+                    //    className: "fa fa-folder-open",
+                    //    title: "File Manager"
+                    //},
+                    //{
+                    //    name: "insertYoutube",
+                    //    action: insertYoutube,
+                    //    className: "fa fa-youtube",
+                    //    title: "Insert Youtube Video"
+                    //},
+                    "|", "preview", "|", "guide"
+                ],
+                blockStyles: {
+                    bold: "__",
+                    italic: "_"
+                },
+                element: document.getElementById("txtContent"),
+                indentWithTabs: false,
+                insertTexts: {
+                    horizontalRule: ["", "\n\n-----\n\n"],
+                    image: ["![](http://", ")"],
+                    link: ["[", "](#url#)"],
+                    table: ["", "\n\n| Column 1 | Column 2 | Column 3 |\n| -------- | -------- | -------- |\n| Text     | Text      | Text     |\n\n"]
+                },
+                lineWrapping: true,
+                minHeight: "300px",
+                parsingConfig: {
+                    allowAtxHeaderWithoutSpace: true,
+                    strikethrough: false,
+                    underscoresBreakWords: true
+                },
+                placeholder: "Type here...",
+                promptURLs: true,
+                renderingConfig: {
+                    singleLineBreaks: false,
+                    codeSyntaxHighlighting: true
+                },
+                shortcuts: {
+                    drawTable: "Cmd-Alt-T"
+                },
+                spellChecker: true,
+                status: ["lines", "words"],
+                styleSelectedText: false,
+                syncSideBySidePreviewScroll: false
+            });
+
+            return simplemde;
+        }
+        var editor = getEditor();
+        var editorGetHtml = function () {
+            return editor.value();
+        }
+        var editorSetHtml = function (html) {
+            if (!editor) {
+                return;
+            }
+            editor.value(html);
+        }
+    </script>
+}
+<script type="text/javascript" charset="utf-8" src="~/editors/editor.js"></script>
+
+<script src="~/admin/app/grid-helpers.js"></script>
+<script src="~/admin/app/editor/editor-helpers.js"></script>
+<script src="~/admin/app/editor/posteditorController.js"></script>
+<script src="~/admin/app/editor/pageeditorController.js"></script>
+
+<script src="~/admin/app/data-service.js"></script>
+<script src="~/admin/app/editor/filemanagerController.js"></script>
+
+@section Styles {
+    <link type="text/css" rel="stylesheet" href="~/admin/static/css/editor.css" />
+    <link href="~/lib/cropper/dist/cropper.min.css" rel="stylesheet">
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+    @if (AppSettings.Value.EditorType == EditorType.Html)
+    {
+        <link type="text/css" rel="stylesheet" href="~/editors/neditor/third-party/SyntaxHighlighter/shCoreDefault.css" />
+    }
+    else
+    {
+        <link href="~/editors/simplemde/dist/simplemde.min.css" rel="stylesheet">
+    }
+}
+
+
+
+
+
+

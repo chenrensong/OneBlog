@@ -1,0 +1,54 @@
+﻿@using System.Collections.Generic
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Authentication
+@using OneBlog.ViewModels
+@model RegisterViewModel
+@inject SignInManager<AppUser> SignInManager
+@{
+    ViewBag.Title = "注册";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+<div class="account-box">
+    <h1 class="account-title">
+        <span>创建新账户</span>
+    </h1>
+    <div class="account-body">
+        <form id="login-box-login-form" asp-controller="Account" asp-action="Register"
+              asp-route-returnurl="@ViewBag.ReturnUrl"
+              method="post" class="form-horizontal" role="form">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="DisplayName"></label>
+                <input asp-for="DisplayName" class="textEntry ltr-dir" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="textEntry ltr-dir" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="passwordEntry ltr-dir" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" class="passwordEntry ltr-dir" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-default" value="注册" />
+            </div>
+        </form>
+    </div>
+    <hr />
+    <div id="LoginRegister" class="text-center account-body text-uppercase">
+        已经有账号?
+        <a asp-action="Login" asp-controller="Account">现在登录!</a>
+    </div>
+</div>
+@section Scripts {
+
+
+}

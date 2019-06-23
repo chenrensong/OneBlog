@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+    <UserSecretsId>c64724ed-361b-4a16-a02e-a89b17136e90</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Properties\PublishProfiles\huafenfei - Web Deploy.pubxml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OneBlog.Core\OneBlog.Core.csproj" />
+    <ProjectReference Include="..\OneBlog.Data\OneBlog.Data.csproj" />
+    <ProjectReference Include="..\OneBlog.Helpers\OneBlog.Helpers.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
+    <PackageReference Include="DevZH.Qiniu" Version="6.2.2.2" />
+    <PackageReference Include="Markdig" Version="0.17.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+    <PackageReference Include="ReverseMarkdown" Version="3.8.0" />
+    <PackageReference Include="SS.MetaWeblog" Version="1.1.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+  <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
+    <Exec Command="npm install" />
+    <Exec Command="bower install" />
+    <Exec Command="node node_modules\\gulp\\bin\\gulp.js" />
+  </Target>
+  <ProjectExtensions><VisualStudio><UserProperties bower_1json__JSONSchema="" appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
+
+</Project>

@@ -1,0 +1,5 @@
+{
+  "directory": "wwwroot/lib",
+  "registry": "https://registry.bower.io",
+  "strict-ssl": false
+}

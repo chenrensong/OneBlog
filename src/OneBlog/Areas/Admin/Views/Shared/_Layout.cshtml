@@ -1,0 +1,118 @@
+﻿@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> AppSettings
+@{
+    var CurrentUser = await UserManager.GetUserAsync(User);
+}
+
+<html ng-app="blogAdmin">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>@AppSettings.Value.Title - (@CurrentUser.DisplayName)</title>
+    <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+    <link href="~/css/star-rating.css" rel="stylesheet" />
+    <link href="~/lib/toastr/toastr.css" rel="stylesheet" />
+    @*<link href="~/3rdparty/css/pagination.css" rel="stylesheet">*@
+    <link href="~/admin/static/css/styles.css" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <script type="text/javascript">
+        var UserVars = { Name: '@CurrentUser.UserName',UserId:'@CurrentUser.Id', IsAdmin: 'True', Rights: ['ViewDetailedErrorMessages','ViewDashboard','AccessAdminPages','AccessAdminSettingsPages','ViewPublicComments','ViewUnmoderatedComments','CreateComments','ModerateComments','ViewPublicPosts','ViewUnpublishedPosts','CreateNewPosts','EditOwnPosts','EditOtherUsersPosts','DeleteOwnPosts','DeleteOtherUsersPosts','PublishOwnPosts','PublishOtherUsersPosts','ViewPublicPages','ViewUnpublishedPages','CreateNewPages','EditOwnPages','ViewRatingsOnPosts','SubmitRatingsOnPosts','ViewRoles','CreateNewRoles','EditRoles','DeleteRoles','EditOwnRoles','EditOtherUsersRoles','CreateNewUsers','DeleteUserSelf','DeleteUsersOtherThanSelf','EditOwnUser','EditOtherUsers','ManageExtensions','ManageWidgets','ManageThemes','ManagePackages'] };
+        var ActiveTheme = 'Standard'
+        var UsageScenario = 'singleblog'
+        var ServerTime = '@DateTime.Now'
+        var UtcTime = '@DateTime.UtcNow'
+        if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+            var msViewportStyle = document.createElement("style");
+            var mq = "@@-ms-viewport{width:auto!important}";
+                msViewportStyle.appendChild(document.createTextNode(mq));
+                document.getElementsByTagName("head")[0].appendChild(msViewportStyle);
+                }
+    </script>
+    @RenderSection("Styles", required: false)
+</head>
+<body class="ltr-dir">
+    <script type="text/javascript" src="~/admin/app/resource.js"></script>
+    <div class="main-wrapper">
+        <div class="main-sidebar">
+            @{await Html.RenderPartialAsync("_Sidebar");}
+        </div>
+        <div class="main-content">
+            @RenderBody()
+        </div>
+        <div class="main-overlay"></div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/jqueri-ui/jquery-ui.min.js"></script>
+    <script src="~/lib/jquery.validate/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-form/dist/jquery.form.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/textext.js"></script>
+    <script src="~/lib/moment/moment.js"></script>
+    @*<script src="~/lib/angular/angular.min.js"></script>*@
+    <script src="~/3rdparty/js/angular.min.js"></script>
+    <script src="~/3rdparty/js/tm.pagination.js"></script>
+    <script src="~/lib/angular-route/angular-route.min.js"></script>
+    <script src="~/lib/angular-sanitize/angular-sanitize.min.js"></script>
+
+    <script src="~/admin/app/app.js"></script>
+    <script src="~/admin/app/listpager.js"></script>
+    <script src="~/admin/app/grid-helpers.js"></script>
+    <script src="~/admin/app/data-service.js"></script>
+    <script src="~/admin/app/editor/filemanagerController.js"></script>
+    <script src="~/admin/app/editor/posteditorController.js"></script>
+    <script src="~/admin/app/editor/pageeditorController.js"></script>
+    <script src="~/admin/app/common.js"></script>
+    <script src="~/admin/app/dashboard/dashboardController.js"></script>
+    <script src="~/admin/app/content/blogs/blogController.js"></script>
+    <script src="~/admin/app/content/posts/postController.js"></script>
+    <script src="~/admin/app/content/pages/pageController.js"></script>
+    <script src="~/admin/app/content/tags/tagController.js"></script>
+    <script src="~/admin/app/content/categories/categoryController.js"></script>
+    <script src="~/admin/app/content/comments/commentController.js"></script>
+    <script src="~/admin/app/content/comments/commentFilters.js"></script>
+    <script src="~/admin/app/custom/plugins/pluginController.js"></script>
+    <script src="~/admin/app/custom/themes/themeController.js"></script>
+    <script src="~/admin/app/custom/widgets/widgetController.js"></script>
+    <script src="~/admin/app/custom/widgets/widgetGalleryController.js"></script>
+    <script src="~/admin/app/security/users/userController.js"></script>
+    <script src="~/admin/app/security/roles/roleController.js"></script>
+    <script src="~/admin/app/security/profile/profileController.js"></script>
+    <script src="~/admin/app/settings/settingController.js"></script>
+    <script src="~/admin/app/settings/tools/toolController.js"></script>
+    <script src="~/admin/app/settings/controls/blogrollController.js"></script>
+    <script src="~/admin/app/settings/controls/pingController.js"></script>
+
+
+
+    <script>
+        $(".sidebar-toggle").click(function () {
+            $(".main-wrapper").toggleClass("sidebar-open");
+        });
+        $(".main-overlay").click(function () {
+            $(".main-wrapper").removeClass("sidebar-open");
+        });
+
+        $(".sub-nav-sidebar li").click(function () {
+            $(".main-wrapper").removeClass("sidebar-open");
+        });
+
+        $(window).resize(function () {
+            if ($(window).width() > 1025) {
+                $(".main-wrapper").removeClass("sidebar-open");
+            }
+        });
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

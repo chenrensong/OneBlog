@@ -1,0 +1,779 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<urlset>
+  <url>
+    <loc>http://www.datiancun.com/post/08a61b7a-d03b-4c4c-bad2-a7770036abbd</loc>
+    <lastmod>2017-05-18</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>暴力遍历还没注册的双拼域名</title>
+        <content>&lt;p&gt;最近突然发现双拼域名越来越少，价格也在不断上涨。想注册一个有趣的双拼域名玩玩，于是动手写了一个暴力查询双拼域名的工具。&lt;/p&gt;&lt;p&gt;思路比较简单，首先找到域名查询的接口，这些接口一般都会做策略防止暴力查询，这边我使用了2个接口作为容错。&lt;/p&gt;&lt;p&gt;aaw8：&lt;a href="http://www.aaw8.com/Api/DomainApi.aspx?domain=datiancun.com" _src="http://www.aaw8.com/Api/DomainApi.aspx?domain=datiancun.com"&gt;http://www.aaw8.com/Api/DomainApi.aspx?domain=datiancun.com&lt;/a&gt;&lt;/p&gt;&lt;pre class="brush:xml;toolbar:false"&gt;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;StateID:&amp;nbsp;0,
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;DomainName:&amp;nbsp;null,
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Result:&amp;nbsp;null
+}&lt;/pre&gt;&lt;p&gt;返回第一个参数为域名查询状态：&lt;br/&gt;0 表示查询接口出错&lt;br/&gt;1 表示网络异常&lt;br/&gt;200 表示接口返回成功&lt;br/&gt;210 表示域名可以注册&lt;br/&gt;211 表示域名已经注册&lt;br/&gt;212 表示域名参数传输错误&lt;br/&gt;213 查询超时&lt;br/&gt;&lt;/p&gt;&lt;p&gt;万网：&lt;a href="http://panda.www.net.cn/cgi-bin/check.cgi?area_domain=datiancun.com" _src="http://panda.www.net.cn/cgi-bin/check.cgi?area_domain=datiancun.com"&gt;http://panda.www.net.cn/cgi-bin/check.cgi?area_domain=datiancun.com&lt;/a&gt;&lt;/p&gt;&lt;pre class="brush:xml;toolbar:false"&gt;&amp;lt;?xml&amp;nbsp;version=&amp;quot;1.0&amp;quot;&amp;nbsp;encoding=&amp;quot;gb2312&amp;quot;?&amp;gt;
+&amp;lt;property&amp;gt;
+&amp;lt;returncode&amp;gt;200&amp;lt;/returncode&amp;gt;
+&amp;lt;key&amp;gt;datiancun.com&amp;lt;/key&amp;gt;
+&amp;lt;original&amp;gt;211&amp;nbsp;:&amp;nbsp;Domain&amp;nbsp;name&amp;nbsp;is&amp;nbsp;not&amp;nbsp;available&amp;lt;/original&amp;gt;
+&amp;lt;/property&amp;gt;&lt;/pre&gt;&lt;p&gt;返回 XML 结果说明：&lt;br/&gt;returncode=200 表示接口返回成功&lt;br/&gt;key=***.com表示当前check的域名&lt;br/&gt;original=210 : Domain name is available&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 表示域名可以注册&lt;br/&gt;original=211 : Domain name is not available 表示域名已经注册&lt;br/&gt;original=212 : Domain name is invalid&amp;nbsp;&amp;nbsp; 表示域名参数传输错误&lt;br/&gt;original=213 : Time out 查询超时&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;有了接口之后一切都比较好办了，这时候需要一个拼音的单词表&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;private&amp;nbsp;static&amp;nbsp;string&amp;nbsp;CONST&amp;nbsp;=&amp;nbsp;@&amp;quot;a,ai,an,ang,ao,ba,bai,ban,bang,bao,bei,ben,beng,bi,bian,biao,bie,bin,bing,bo,bu,ca,cai,can,cang,cao,ce,cen,ceng,cha,chai,chan,chang,chao,che,chen,cheng,chi,chong,chou,chu,chuan,chuang,chui,chun,chuo,ci,cong,cou,cu,cuan,cui,cun,cuo,da,dai,dan,dang,dao,de,deng,di,dia,dian,diao,die,ding,diu,dong,dou,du,duan,dui,dun,duo,e,en,er,fa,fan,fang,fei,fen,feng,fo,fou,fu,ga,gai,gan,gang,gao,ge,gei,gen,geng,gong,gou,gu,gua,guai,guan,guang,gui,gun,guo,ha,hai,han,hang,hao,he,hei,hen,heng,hong,hou,hu,hua,huai,huan,huang,hui,hun,huo,ji,jia,jian,jiang,jiao,jie,jin,jing,jiong,jiu,ju,juan,jue,ka,kai,kan,kang,kao,ke,ken,keng,kong,kou,ku,kua,kuai,kuan,kuang,kui,kun,kuo,la,lai,lan,lang,lao,le,lei,leng,li,lia,lian,liang,liao,lie,lin,ling,liu,lo,long,lou,lu,luan,lun,luo,lv,ma,mai,man,mang,mao,me,mei,men,meng,mi,mian,miao,mie,min,ming,miu,mo,mou,mu,na,nai,nan,nang,nao,ne,nei,nen,neng,ni,nian,niang,niao,nie,nin,ning,niu,nong,nou,nu,nuan,nuo,nv,o,ou,pa,pai,pan,pang,pao,pei,pen,peng,pi,pian,piao,pie,pin,ping,po,pou,pu,qi,qia,qian,qiang,qiao,qie,qin,qing,qiong,qiu,qu,quan,que,qun,ran,rang,rao,re,ren,reng,ri,rong,rou,ru,ruan,rui,run,ruo,sa,sai,san,sang,sao,se,sen,seng,sha,shai,shan,shang,shao,she,shen,sheng,shi,shou,shu,shua,shuai,shuan,shuang,shui,shun,shuo,si,song,sou,su,suan,sui,sun,suo,ta,tai,tan,tang,tao,te,teng,ti,tian,tiao,tie,ting,tong,tou,tu,tuan,tui,tun,tuo,wa,wai,wan,wang,wei,wen,weng,wo,wu,xi,xia,xian,xiang,xiao,xie,xin,xing,xiong,xiu,xu,xuan,xue,xun,ya,yan,yang,yao,ye,yi,yin,ying,yo,yong,you,yu,yuan,yue,yun,za,zai,zan,zang,zao,ze,zei,zen,zeng,zha,zhai,zhan,zhang,zhao,zhe,zhen,zheng,zhi,zhong,zhou,zhu,zhua,zhuai,zhuan,zhuang,zhui,zhun,zhuo,zi,zong,zou,zu,zuan,zui,zun,zuo&amp;quot;;&lt;/pre&gt;&lt;p&gt;通过遍历单词表来查询双拼域名，再请求相应的服务即可&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpClient&amp;nbsp;client&amp;nbsp;=&amp;nbsp;new&amp;nbsp;HttpClient();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;response&amp;nbsp;=&amp;nbsp;await&amp;nbsp;client.GetAsync(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;result&amp;nbsp;=&amp;nbsp;await&amp;nbsp;response.Content.ReadAsStringAsync();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;result&amp;nbsp;=&amp;nbsp;resolve(result);&lt;/pre&gt;&lt;p&gt;需要说明的是aaw8的接口比较挫，返回的是html 包装的json....&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;img src="http://cdn.huafenfei.com/b2dc959a-0d54-4be8-9465-a777003659a8.png" title="" alt=""/&gt;&lt;/p&gt;&lt;p&gt;需要正则把body里面的部分给截取出来&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;private&amp;nbsp;static&amp;nbsp;string&amp;nbsp;ReadHtmlToEditHtml(string&amp;nbsp;htmlContent1)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Regex&amp;nbsp;reg&amp;nbsp;=&amp;nbsp;new&amp;nbsp;Regex(&amp;quot;(?is)&amp;lt;body[^&amp;gt;]*&amp;gt;(?&amp;lt;body&amp;gt;.*?)&amp;lt;/body&amp;gt;&amp;quot;);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;bodyHtml&amp;nbsp;=&amp;nbsp;&amp;quot;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;bodyHtml&amp;nbsp;=&amp;nbsp;reg.Match(htmlContent1).Groups[&amp;quot;body&amp;quot;].Value;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;bodyHtml;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;剩下来的就是写个返回数据解析了，为了防止查询过的域名再查询一遍浪费时间，我简单做了下本地cache，完整的代码如下&lt;br/&gt;&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;private&amp;nbsp;async&amp;nbsp;Task&amp;lt;ResultModel&amp;gt;&amp;nbsp;FindDomain(string&amp;nbsp;entity)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;String&amp;nbsp;filePath&amp;nbsp;=&amp;nbsp;&amp;quot;D:\\cache\\&amp;quot;&amp;nbsp;+&amp;nbsp;md5(url)&amp;nbsp;+&amp;nbsp;&amp;quot;_com.txt&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;fileContents&amp;nbsp;=&amp;nbsp;&amp;quot;&amp;quot;;
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(File.Exists(filePath))
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;fileContents&amp;nbsp;=&amp;nbsp;File.ReadAllText(filePath);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpClient&amp;nbsp;client&amp;nbsp;=&amp;nbsp;new&amp;nbsp;HttpClient()
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;response&amp;nbsp;=&amp;nbsp;await&amp;nbsp;client.GetAsync(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;result&amp;nbsp;=&amp;nbsp;await&amp;nbsp;response.Content.ReadAsStringAsync();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;result&amp;nbsp;=&amp;nbsp;resolve(result);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;fileContents&amp;nbsp;=&amp;nbsp;result;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;bool&amp;nbsp;flag&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;try
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;JsonConvert.DeserializeObject(fileContents);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;flag&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;File.WriteAllText(filePath,&amp;nbsp;fileContents);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;catch&amp;nbsp;(Exception&amp;nbsp;ex)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;flag&amp;nbsp;=&amp;nbsp;false;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;obj&amp;nbsp;=&amp;nbsp;(ResultModel)Newtonsoft.Json.JsonConvert.DeserializeObject(fileContents,&amp;nbsp;typeof(ResultModel));
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;obj;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;</content>
+        <tag />
+        <pubTime>2017-05-18T10:50:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/d35b4c6b-eb4b-475a-b07d-a77700369623.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/df4988b7-58d6-40f3-9c36-a74a0092ce59</loc>
+    <lastmod>2017-03-03</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>.NET开发人员必备工具推荐</title>
+        <content>&lt;p style="text-align: left;"&gt;如果你是一名.NET程序员，不妨来看看本文推荐的这些工具吧。灵活搭配并使用它们，或许可以给你带来意想不到的收获。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;主要工具&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.visualstudio.com/" target="_blank"&gt;Visual Studio&lt;/a&gt;——最好用的IDE没有之一，.NET开发者的必备IDE。Visual Studio提供非常强大的启动工具箱，并且还有一些让人惊喜的插件支持。在去年11月，微软发布了Visual Studio 2013社区版，免费提供给学生、开源贡献者及初创企业使用。每一次版本更新都会给开发者带来无限惊喜。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://msdn.microsoft.com/en-us/library/ms174173.aspx" target="_blank"&gt;SQL Server Management Studio&lt;/a&gt;——SQL Server Management Studio将早期版本的SQL Server中所包含的企业管理器、查询分析器和 Analysis Manager 功能整合到单一的环境中。给开发者带来了不少的方便，并且帮助开发者节省开发时间。Express edition版本中的大多数工具即能够满足日常的SQL Server安装管理需求。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://msdn.microsoft.com/en-us/library/ms181091.aspx" target="_blank"&gt;SQL Server Profiler&lt;/a&gt;——Microsoft SQL Server Profiler是SQL跟踪的图形用户界面，用于监视数据库引擎或Analysis Services的实例。您可以捕获有关每个事件的数据并将其保存到文件或表中供以后分析。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.linqpad.net/" target="_blank"&gt;LINQPad&lt;/a&gt;——使用最佳的.NET代码便签来编写LINQ查询。它并不是SQL Management Studio最佳的替代工具，但当遇到复杂的多数据查询时，它就是我的首选。LINQPad作者Joe Albihari一直在添加新的功能，他最近又增加了一个集成调试器。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://nimbletext.com/" target="_blank"&gt;NimbleText&lt;/a&gt;——谢谢Scott Hanselman让我发现这么好的工具，用来编写重复的代码或处理小型或大型数据转换任务，&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://notepad-plus-plus.org/" target="_blank"&gt;Notepad++&lt;/a&gt;——文本编辑器首选，相当好的插件支持，语法高亮显示，可以在Windows Explorer中编辑任何文本。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.sourcetreeapp.com/" target="_blank"&gt;SourceTree&lt;/a&gt;——Windows和Mac OS X下免费的Git客户端，支持创建、克隆、提交、push、pull 和合并等操作。拥有一个精美简洁的界面，大大简化了开发者与代码库之间的Git操作方式，这对于那些不熟悉Git命令的开发者来说非常实用。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://www.jetbrains.com/decompiler/" target="_blank"&gt;dotPeek&lt;/a&gt;—— .NET平台的一款免费的反编译工具。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en" target="_blank"&gt;Postman (Chrome extension)&lt;/a&gt;—— 一款功能强大的网页调试与发送网页HTTP请求的Chrome插件。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.telerik.com/fiddler" target="_blank"&gt;Fiddler&lt;/a&gt;——一个http协议调试代理工具，它能够记录并检查所有你的电脑和互联网之间的http通讯，设置断点，查看所有的“进出”Fiddler的数据。 Fiddler 要比其他的网络调试器要更加简单，因为它不仅仅暴露http通讯还提供了一个用户友好的格式。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.google.com/chrome" target="_blank"&gt;Google Chrome&lt;/a&gt;——我曾使用Firefox，但使用一段时间后感觉非常臃肿。Chrome的开发工具要比Firebug好，此外，它还提供更好地插件和应用程序支持。&lt;/p&gt;&lt;p style="text-align: left;"&gt;Visual Studio插件&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://www.jetbrains.com/resharper/" target="_blank"&gt;ReSharper&lt;/a&gt;——JetBrains公司出品的著名的代码生成工具，使用ReSharper，你可以进行深度代码分析，智能代码协助，实时错误代码高亮显示，解决方案范围内代码分析，快速代码更正，一步完成代码格式化和清理，业界领先的自动代码重构，高级的集成单元测试方案，和强大的解决方案内导航和搜索。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.oz-code.com/" target="_blank"&gt;OzCode&lt;/a&gt;——如果你是一名C#开发者，那么，你则需要OzCode。它将可视化调试的概念上升到了一个新的高度，将循环、表达式、比较阵列都直观的展示出来。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://vswebessentials.com/" target="_blank"&gt;Web Essentials&lt;/a&gt;——由微软Mads Kristensen开发的一个非常棒的工具，对CSS、JavaScript和HTML都提供了很多快捷的功能支持。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace" target="_blank"&gt;Productivity Power Tools&lt;/a&gt;——收集了一堆非常简洁又非常有用的功能来帮助你日常使用Visual Studio。这些功能集中在编辑、浏览以及其他常见的构造代码时会使用到的任务，功能非常强大，大大提高了开发效率。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://vscommands.squaredinfinity.com/" target="_blank"&gt;VSCommands&lt;/a&gt;——可以让Visual Studio更加智能，里面有许多套件，功能非常丰富。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;&lt;span style="font-family: 微软雅黑, &amp;#39;Microsoft YaHei&amp;#39;;"&gt;框架&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;ul class=" list-paddingleft-2"&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;Web&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.asp.net/mvc" target="_blank"&gt;ASP.NET MVC&lt;/a&gt;——ASP.NET MVC 是微软官方提供的以MVC模式为基础的ASP.NET Web应用程序(Web Application)框架。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.asp.net/web-api" target="_blank"&gt;ASP.NET Web API&lt;/a&gt;——构建于MVC之上，可以连接包括浏览器、移动设备等多种客户端的HTTP服务的新框架，是一种用于在 .NET Framework上构建RESTful应用程序的理想平台。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://signalr.net/" target="_blank"&gt;SignalR&lt;/a&gt;——SignalR实现服务器与客户端的实时通信，提供了非常简单易用的高阶API，使服务器端可以单个或批量调用客户端上的JavaScript函数。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.angularjs.org/" target="_blank"&gt;AngularJS&lt;/a&gt;——是一款优秀的前端JS框架，已经被用于Google的多款产品当中。AngularJS有着诸多特性，最为核心的是：MVVM、模块化、自动化双向数据绑定、语义化标签、依赖注入，等等。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.jquery.com/" target="_blank"&gt;jQuery&lt;/a&gt;——开源、兼容多浏览器的JS库，核心理念是write less,do more。jQuery的语法设计可以使开发者更加便捷，例如操作文档对象、选择DOM元素、制作动画效果、事件处理、使用Ajax以及其他功能。除此以外，jQuery提供API让开发者编写插件。其模块化的使用方式使开发者可以很轻松的开发出功能强大的静态或动态网页。&lt;/p&gt;&lt;ul class=" list-paddingleft-2"&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;Mobile&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.xamarin.com/" target="_blank"&gt;Xamarin&lt;/a&gt;——使用C#来开发出非常优秀移动用户体验的框架，作为一个跨平台开发框架，Xamarin.Mobile有很多优点。&lt;/p&gt;&lt;ul class=" list-paddingleft-2"&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;数据访问&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://msdn.microsoft.com/en-us/data/ef.aspx" target="_blank"&gt;Entity Framework&lt;/a&gt;——访问数据库，使用LINQ于数据库通信，使用属性化的POCOs创建数据视图，模型更新和迁移更加简单。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://github.com/StackExchange/dapper-dot-net" target="_blank"&gt;Dapper&lt;/a&gt;——实现数据到对象的ORM操作，体积小速度快。&lt;/p&gt;&lt;ul class=" list-paddingleft-2"&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;通用&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.newtonsoft.com/json" target="_blank"&gt;Newtonsoft.JSON&lt;/a&gt;——在.NET中操作JSON序列化和反序列化标准。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://topshelf-project.com/" target="_blank"&gt;TopShelf&lt;/a&gt;——是一种简单的服务托管框架，使用.NET来构建Windows服务。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.rabbitmq.com/" target="_blank"&gt;RabbitMQ&lt;/a&gt;——当你应用程序套件需要一个稳定可靠的消息队列事，RabbitMQ则是你的最佳选择。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://underscorejs.org/" target="_blank"&gt;Underscore.JS&lt;/a&gt;——我最喜欢的JavaScript框架，用来进行对象操作和遍历集合/转换。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://momentjs.com/" target="_blank"&gt;Moment.js&lt;/a&gt;——一个轻量级并且健壮的js日期处理类库。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;&lt;span style="font-family: 微软雅黑, &amp;#39;Microsoft YaHei&amp;#39;;"&gt;小工具&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://justgetflux.com/" target="_blank"&gt;F.lux&lt;/a&gt;——是一款自动屏幕亮度色彩调节，有利于保护程序员们的视力。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.getpaint.net/" target="_blank"&gt;Paint.NET&lt;/a&gt;——基于.NET实现的快速免费的图像处理软件。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.rarlab.com/rar_archiver.htm" target="_blank"&gt;WinRAR&lt;/a&gt;——压缩管理工具。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.jam-software.com/treesize_free/" target="_blank"&gt;Treesize Free&lt;/a&gt;——硬盘管理工具，能够显示文件夹大小。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://lastpass.com/" target="_blank"&gt;LastPass&lt;/a&gt;——一个优秀的在线密码管理器和页面过滤器，采用了强大的加密算法，自动登录/云同步/跨平台/支持多款浏览器。&lt;/p&gt;&lt;p style="text-align: left;"&gt;实用的网站资源&lt;/p&gt;&lt;ul class=" list-paddingleft-2"&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.alvinashcraft.com/" target="_blank"&gt;Dew Drop&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.thedailywtf.com/" target="_blank"&gt;TheDailyWTF&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.reddit.com/" target="_blank"&gt;Reddit&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="https://news.ycombinator.com/" target="_blank"&gt;Hacker News&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://stackexchange.com/" target="_blank"&gt;StackExchange&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;li&gt;&lt;p style="text-align: left;"&gt;&lt;a href="http://www.hanselman.com/blog/" target="_blank"&gt;Scott Hanselman’s Blog&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;&lt;/ul&gt;</content>
+        <tag>.NET</tag>
+        <pubTime>2017-03-03T04:53:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/e93e3fc1-0452-413b-9e17-a74a0092c609.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/c2207496-c1f8-43bb-9c0e-a74a00921cd8</loc>
+    <lastmod>2017-03-03</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>UWP应用中的PRI文件反编译</title>
+        <content>&lt;p&gt;PRI全称Package Resources Index,&amp;nbsp;&lt;a href="https://msdn.microsoft.com/zh-cn/library/windows/apps/jj552947.aspx" target="_blank"&gt;MSDN官方解释&lt;/a&gt;&lt;/p&gt;&lt;p&gt;pri文件是通过微软提供的工具makepri.exe提供了打包、解包PRI功能的。&lt;/p&gt;&lt;p&gt;Windows 8.1版本的makepri.exe路径：&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;&amp;nbsp;C:\Program Files (x86)\Windows Kits\8.1\bin\x86\makepri.exe&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;Windows 10版本的makepri.exe路径：&amp;nbsp;&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;C:\Program Files (x86)\Windows Kits\10\bin\x64\makepri.exe&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;如果要反编译Pri to Xml 直接输入命令&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;“C:\Program Files (x86)\Windows Kits\10\bin\x64\makepri.exe” dump &amp;nbsp;/if “c:\resources.pri” /of “c:\resources.pri.xml”&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;这时候会在c盘得到resources.pri.xml文件，里面就包含pri的各种信息，下面就是一个pri.xml文件的例子：&lt;/p&gt;&lt;pre class="brush:xml;toolbar:false"&gt;&amp;lt;?xml&amp;nbsp;version=&amp;quot;1.0&amp;quot;&amp;nbsp;encoding=&amp;quot;UTF-8&amp;quot;&amp;nbsp;standalone=&amp;quot;yes&amp;quot;?&amp;gt;
+&amp;lt;PriInfo&amp;gt;
+	&amp;lt;ResourceMap&amp;nbsp;name=&amp;quot;9452VitorCid.PocketExtractor&amp;quot;&amp;nbsp;version=&amp;quot;1.0&amp;quot;&amp;nbsp;primary=&amp;quot;true&amp;quot;&amp;gt;
+		&amp;lt;Qualifiers&amp;gt;
+			&amp;lt;Language&amp;gt;EN-US&amp;lt;/Language&amp;gt;
+			&amp;lt;Scale&amp;gt;240&amp;lt;/Scale&amp;gt;
+			&amp;lt;TargetSize&amp;gt;256,16,32,48&amp;lt;/TargetSize&amp;gt;
+		&amp;lt;/Qualifiers&amp;gt;
+		&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;Files&amp;quot;&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;App.xbf&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/App.xbf&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;App.xbf&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;FileIcon.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/FileIcon.png&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;FileIcon.png&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;IntroPage.xbf&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/IntroPage.xbf&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;IntroPage.xbf&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;MobileZip.xr.xml&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/MobileZip.xr.xml&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;MobileZip.xr.xml&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;PivotPage.xbf&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/PivotPage.xbf&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;PivotPage.xbf&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;WindowsStoreProxy.xml&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/WindowsStoreProxy.xml&amp;quot;&amp;gt;
+				&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+					&amp;lt;Value&amp;gt;WindowsStoreProxy.xml&amp;lt;/Value&amp;gt;
+				&amp;lt;/Candidate&amp;gt;
+			&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;Assets&amp;quot;&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;BadgeLogo.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/BadgeLogo.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\BadgeLogo.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;FileIcon.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/FileIcon.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\FileIcon.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;Icon.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/Icon.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;TargetSize-48&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Icon.targetsize-48.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;TargetSize-32&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Icon.targetsize-32.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;TargetSize-256&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Icon.targetsize-256.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;TargetSize-16&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Icon.targetsize-16.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;Logo.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/Logo.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Logo.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;SmallLogo.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/SmallLogo.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\SmallLogo.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;SplashScreen.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/SplashScreen.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\SplashScreen.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;Square71x71Logo.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/Square71x71Logo.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\Square71x71Logo.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;StoreLogo.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/StoreLogo.png&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Scale-240&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Assets\StoreLogo.scale-240.png&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;icons&amp;quot;&amp;gt;
+					&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;ZipIconDark.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/icons/ZipIconDark.png&amp;quot;&amp;gt;
+						&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+							&amp;lt;Value&amp;gt;Assets\icons\ZipIconDark.png&amp;lt;/Value&amp;gt;
+						&amp;lt;/Candidate&amp;gt;
+					&amp;lt;/NamedResource&amp;gt;
+					&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;ZipIconLight.png&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Assets/icons/ZipIconLight.png&amp;quot;&amp;gt;
+						&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+							&amp;lt;Value&amp;gt;Assets\icons\ZipIconLight.png&amp;lt;/Value&amp;gt;
+						&amp;lt;/Candidate&amp;gt;
+					&amp;lt;/NamedResource&amp;gt;
+				&amp;lt;/ResourceMapSubtree&amp;gt;
+			&amp;lt;/ResourceMapSubtree&amp;gt;
+			&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;Common&amp;quot;&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;ReadMe.txt&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/Common/ReadMe.txt&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;Common\ReadMe.txt&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;/ResourceMapSubtree&amp;gt;
+			&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;DataModel&amp;quot;&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;SampleData.json&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Files/DataModel/SampleData.json&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;type=&amp;quot;Path&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;DataModel\SampleData.json&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;/ResourceMapSubtree&amp;gt;
+		&amp;lt;/ResourceMapSubtree&amp;gt;
+		&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;Resources&amp;quot;&amp;gt;
+			&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;AddAppBarButton&amp;quot;&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;Label&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Resources/AddAppBarButton/Label&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Language-EN-US&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;String&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;add&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;/ResourceMapSubtree&amp;gt;
+			&amp;lt;ResourceMapSubtree&amp;nbsp;name=&amp;quot;Header&amp;quot;&amp;gt;
+				&amp;lt;NamedResource&amp;nbsp;name=&amp;quot;Text&amp;quot;&amp;nbsp;uri=&amp;quot;ms-resource://9452VitorCid.PocketExtractor/Resources/Header/Text&amp;quot;&amp;gt;
+					&amp;lt;Candidate&amp;nbsp;qualifiers=&amp;quot;Language-EN-US&amp;quot;&amp;nbsp;isDefault=&amp;quot;true&amp;quot;&amp;nbsp;type=&amp;quot;String&amp;quot;&amp;gt;
+						&amp;lt;Value&amp;gt;MOBILE&amp;nbsp;ZIP&amp;lt;/Value&amp;gt;
+					&amp;lt;/Candidate&amp;gt;
+				&amp;lt;/NamedResource&amp;gt;
+			&amp;lt;/ResourceMapSubtree&amp;gt;
+		&amp;lt;/ResourceMapSubtree&amp;gt;
+	&amp;lt;/ResourceMap&amp;gt;
+&amp;lt;/PriInfo&amp;gt;&lt;/pre&gt;&lt;p&gt;pri文件的反编译不仅可以用于UWP，Modern应用，还有一个比较成功的案例&lt;a href="https://github.com/PFCKrutonium/Windows-10-Login-Background-Changer" target="_blank"&gt;Windows-10-Login-Background-Changer&lt;/a&gt;，用于更换Win10登录背景的工具。&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;</content>
+        <tag>反编译UWP</tag>
+        <pubTime>2017-03-03T04:49:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/c75b285e-9d7a-42cd-b52f-a74a0091f7b7.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/1da01f8e-c8cc-4cd0-91ca-a74a0090255c</loc>
+    <lastmod>2017-02-03</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在Desktop的WebView上运行手机版本页面</title>
+        <content>&lt;p style="text-align: left;"&gt;UWP应用支持多种设备，同一套代码可以多处运行，虽然代码相同但是功能上可能会有些差异，在Desktop上的WebView通常运行该网页的PC版本，在Mobile上则为移动版本。如何让PC上的WebView运行Mobile的版本呢？这里要先介绍一下User-Agent。&lt;/p&gt;&lt;p style="text-align: left;"&gt;User-Agent&lt;/p&gt;&lt;p style="text-align: left;"&gt;在浏览器浏览网页时,浏览器会发送User Agent到网站服务器,服务器可以根据User Agent识别用户的操作系统及版本,浏览器及版本，然后判断用户浏览器可以支持的功能,从而返回给浏览器不同的代码。&lt;/p&gt;&lt;p style="text-align: left;"&gt;所以要让PC的WebView访问手机的页面，就只要改变WebView的UA即可。&lt;/p&gt;&lt;pre&gt;var&amp;nbsp;httpRequestMessage&amp;nbsp;=&amp;nbsp;new&amp;nbsp;HttpRequestMessage(Windows.Web.Http.HttpMethod.Get,&amp;nbsp;new&amp;nbsp;Uri(&amp;quot;&amp;nbsp;
+var&amp;nbsp;userAgent&amp;nbsp;=&amp;nbsp;&amp;quot;Mozilla/5.0&amp;nbsp;(iPhone;&amp;nbsp;CPU&amp;nbsp;iPhone&amp;nbsp;OS&amp;nbsp;9_1&amp;nbsp;like&amp;nbsp;Mac&amp;nbsp;OS&amp;nbsp;X)&amp;nbsp;AppleWebKit/601.1.46&amp;nbsp;(KHTML,&amp;nbsp;like&amp;nbsp;Gecko)&amp;nbsp;Version/9.0&amp;nbsp;Mobile/13B143&amp;nbsp;Safari/601.1&amp;quot;;
+httpRequestMessage.Headers.Add(&amp;quot;User-Agent&amp;quot;,&amp;nbsp;userAgent);
+Webview.NavigateWithHttpRequestMessage(httpRequestMessage);&lt;/pre&gt;&lt;p style="text-align: left;"&gt;这里列几个常用的UA,可以用它们模拟各种设备。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;Edge&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p style="text-align: left;"&gt;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;Iphone 6s&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p style="text-align: left;"&gt;Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;Nexus 6P&lt;/strong&gt;&lt;/p&gt;&lt;blockquote&gt;&lt;p style="text-align: left;"&gt;Mozilla/5.0 (Linux; Android 5.1.1; Nexus 6 Build/LYZ28E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;设置后就能在Desktop应用上显示Mobile的页面，贴吧UWP的登录页面就是这么实现的。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/a46185d2-cce3-45dd-9be8-a74a008fb393.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;但是会发现贴吧UWP验证码的刷新功能并不能使用，Why？&lt;/p&gt;&lt;p style="text-align: left;"&gt;百度的登录界面的刷新功能使用了是tap事件，但是在desktop的webview中并不支持，只能使用click事件，所以我们需要把click事件路由到tap事件去。&lt;/p&gt;&lt;p style="text-align: left;"&gt;需要使用WebView的InvokeScriptAsync方法执行下列代码&lt;/p&gt;&lt;pre&gt;document.querySelector(&amp;#39;body&amp;#39;).addEventListener(&amp;#39;click&amp;#39;,&amp;nbsp;function(event)&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;target&amp;nbsp;=&amp;nbsp;event.target;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;event&amp;nbsp;=&amp;nbsp;new&amp;nbsp;Event(&amp;#39;tap&amp;#39;);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;target.dispatchEvent(event);});&lt;/pre&gt;&lt;p style="text-align: left;"&gt;这样你会发现点击click事件会同时分发tap事件，用这个思路就可以解决大部分Desktop运行Mobile界面的问题。&lt;/p&gt;</content>
+        <tag>UWPWebView</tag>
+        <pubTime>2017-02-03T04:43:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/d0356343-fbf3-4112-b44f-a74a009004e2.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/239ebe9f-7db8-4fc2-8c01-a74a008f1334</loc>
+    <lastmod>2017-02-03</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在群晖NAS上搭建Git Server</title>
+        <content>&lt;p&gt;最近买了一台群晖NAS，在DSM上搭建了Git Server，用于自己的工作。由于DSM的Git配置没有很直观的教程，特此分享出来。&lt;/p&gt;&lt;p&gt;1.首先，进入DSM，然后在套件中心中找到GIT SERVER，下载安装。&lt;img src="http://cdn.huafenfei.com/eb26cf60-df7d-4d20-a8cf-a74a008d6897.png" width="600" height="353" border="0" vspace="0" title="" alt="" style="width: 600px; height: 353px;"/&gt;&lt;/p&gt;&lt;p&gt;2、安装成功之后，在Git Server上配置使用账户。&lt;/p&gt;&lt;p&gt;3、然后进入控制面板 &amp;gt; 终端机并启用 SSH 服务。&lt;/p&gt;&lt;p&gt;4、在Windows 10的CMD中输入Bash进入linux子系统，ssh chenrensong@192.168.1.16&amp;nbsp;链接成功后，通过sudo -i&amp;nbsp;获取管理员权限&lt;/p&gt;&lt;p&gt;5、先进入你的磁盘卷，一般名字是volumeX,X表示你创建的磁盘空间数量，一般这个机器就两个硬盘，一般就是volume1了&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;cd /volume1&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;接着创建一个git库目录&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;mkdir git_work&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;然后再里面创建一个测试项目&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;cd git_work&lt;br/&gt;mkdir test&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;然后进入这个测试项目目录&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;cd test&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;进行GIT初始化&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;git init --bare&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;由于是root用户执行的操作，所以有一个最最重要的步骤，就是将这个宝库的整个目录的主人要修改为你的git用户&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;chown -R chenrensong:users &amp;nbsp;git_work&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;如果你还想让其他用户也一起共享的话，还需要将其他用户的权限设置为可写&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;chmod -R 775 git_work&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;当然，这里的git_work是整个库目录，我是为了省事情，如果不同项目需要区别对待，那就对里面的项目目录进行设置就可以了。&lt;/p&gt;&lt;p&gt;总的原则就是某个用户要想能推送文件到服务器，必须打开这个用户对整个项目目录，包括子目录的写权限，否则就会失败。&lt;/p&gt;&lt;p&gt;这样Git服务就设置完毕了。&lt;/p&gt;&lt;p&gt;在本地进入git 命令行，测试一下是否可以下载和上传。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;git clone ssh://chenrensong@192.168.1.16/volume1/git_work/test&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;然后再本地添加一个文件并提交到本地版本库中&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;git add test.txt&lt;br/&gt;git commit -m &amp;quot;add test.txt&amp;quot;git push origin master&lt;br/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;这样就能添加并推送test.txt到Git Server上！&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;</content>
+        <tag>NAS群晖DSM</tag>
+        <pubTime>2017-02-03T04:35:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/5384bfc0-2160-4455-b97d-a74a008f0a4b.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/7f9746a7-98d8-442f-bae1-a74a00d9df5b</loc>
+    <lastmod>2016-11-23</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>贴吧UWP新版BDUSS登录教程</title>
+        <content>&lt;p style="text-align: left;"&gt;之前听很多朋友说贴吧不能登录，这次在贴吧&lt;span style="color: rgb(255, 0, 0);"&gt;7.7.12.0&lt;/span&gt;版本特别添加了BDUSS登录方式,那么如何使用呢？&lt;/p&gt;&lt;p style="text-align: left;"&gt;首先用Chrome打开&amp;nbsp;&lt;a href="https://passport.baidu.com/" target="_blank"&gt;https://passport.baidu.com&lt;/a&gt;&amp;nbsp;登录百度账号，登录成功之后，按F12打开调试面板，点击Network随便点击一个请求就能看到你的BDUSS，如下图。&amp;nbsp;&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/52bd1ece-18d6-4760-801d-a74a00d94f32.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;这时候只要复制BDUSS和Ptoken，在贴吧登录界面点击下方的Appbar的BDUSS登录，输入你刚才复制的信息即可完成登录。&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;img src="http://cdn.huafenfei.com/db77ba3d-3489-408e-a683-a74a00d94f93.png"/&gt;&lt;/p&gt;</content>
+        <tag>贴吧</tag>
+        <pubTime>2016-11-23T09:11:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/7284c950-567e-45a9-aea1-a74a00d9dad5.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/7ed9a44f-07e3-404c-9b6b-a74a00dbbd26</loc>
+    <lastmod>2016-11-11</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>用C#来实现知乎登录</title>
+        <content>&lt;p&gt;最近写了个抓取知乎数据的爬虫，刚开始没注意好控制频率，封了好多个账号。orz，现重新整理下给大家分享，本篇和大家介绍下如何实现知乎登录。&lt;/p&gt;&lt;p&gt;基本上有2种思路&lt;/p&gt;&lt;p&gt;1、直接人工在网站上登录获取到cookie，在代码里直接使用该cookie访问知乎。&lt;/p&gt;&lt;p&gt;2、通过账号&amp;amp;密码模拟知乎登录获取cookie，再使用cookie访问知乎。&lt;/p&gt;&lt;p&gt;第一种方式比较简单，但是后续cookie过期后使用比较繁琐，这里我先介绍一下：&lt;/p&gt;&lt;p&gt;首先打开知乎https://www.zhihu.com/，登录你的账号，登录成功后打开chrome调试模式&amp;nbsp;&lt;img src="http://cdn.huafenfei.com/6de036fc-7ea8-475e-ba37-a74a00db15b3.png" width="600" height="164" border="0" vspace="0" title="" alt="" style="width: 600px; height: 164px;"/&gt;&lt;/p&gt;&lt;p&gt;这里就能看到知乎的cookie,通过下面的代码就可以把这个string的cookie转化为CookieContainer。&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;public&amp;nbsp;static&amp;nbsp;CookieContainer&amp;nbsp;addCookieToContainer(string&amp;nbsp;cookie,&amp;nbsp;CookieContainer&amp;nbsp;cc,&amp;nbsp;string&amp;nbsp;domain)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string[]&amp;nbsp;tempCookies&amp;nbsp;=&amp;nbsp;cookie.Split(&amp;#39;;&amp;#39;);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;tempCookie&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;int&amp;nbsp;Equallength&amp;nbsp;=&amp;nbsp;0;//&amp;nbsp;&amp;nbsp;=的位置&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;cookieKey&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;cookieValue&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//qg.gome.com.cn&amp;nbsp;&amp;nbsp;cookie&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;for&amp;nbsp;(int&amp;nbsp;i&amp;nbsp;=&amp;nbsp;0;&amp;nbsp;i&amp;nbsp;&amp;lt;&amp;nbsp;tempCookies.Length;&amp;nbsp;i++)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(!string.IsNullOrEmpty(tempCookies[i]))
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;tempCookie&amp;nbsp;=&amp;nbsp;tempCookies[i];
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Equallength&amp;nbsp;=&amp;nbsp;tempCookie.IndexOf(&amp;quot;=&amp;quot;);
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(Equallength&amp;nbsp;!=&amp;nbsp;-1)&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//有可能cookie&amp;nbsp;无=，就直接一个cookiename；比如:a=3;ck;abc=;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookieKey&amp;nbsp;=&amp;nbsp;tempCookie.Substring(0,&amp;nbsp;Equallength).Trim();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(Equallength&amp;nbsp;==&amp;nbsp;tempCookie.Length&amp;nbsp;-&amp;nbsp;1)&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//这种是等号后面无值，如：abc=;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookieValue&amp;nbsp;=&amp;nbsp;&amp;quot;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookieValue&amp;nbsp;=&amp;nbsp;tempCookie.Substring(Equallength&amp;nbsp;+&amp;nbsp;1,&amp;nbsp;tempCookie.Length&amp;nbsp;-&amp;nbsp;Equallength&amp;nbsp;-&amp;nbsp;1).Trim();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookieKey&amp;nbsp;=&amp;nbsp;tempCookie.Trim();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookieValue&amp;nbsp;=&amp;nbsp;&amp;quot;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cc.Add(new&amp;nbsp;Cookie(cookieKey,&amp;nbsp;cookieValue,&amp;nbsp;&amp;quot;&amp;quot;,&amp;nbsp;domain));
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;cc;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;通过扩展WebClient使得CookieAwareWebClient支持Cookie&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;&amp;nbsp;class&amp;nbsp;CookieAwareWebClient&amp;nbsp;:&amp;nbsp;WebClient
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;CookieContainer&amp;nbsp;CookieContainer&amp;nbsp;{&amp;nbsp;get;&amp;nbsp;set;&amp;nbsp;}
+
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;CookieAwareWebClient()
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;:&amp;nbsp;this(new&amp;nbsp;CookieContainer())
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;CookieAwareWebClient(CookieContainer&amp;nbsp;c)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;this.CookieContainer&amp;nbsp;=&amp;nbsp;c;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;protected&amp;nbsp;override&amp;nbsp;WebRequest&amp;nbsp;GetWebRequest(Uri&amp;nbsp;address)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;WebRequest&amp;nbsp;request&amp;nbsp;=&amp;nbsp;base.GetWebRequest(address);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(request&amp;nbsp;is&amp;nbsp;HttpWebRequest)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;(request&amp;nbsp;as&amp;nbsp;HttpWebRequest).CookieContainer&amp;nbsp;=&amp;nbsp;this.CookieContainer;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;request;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;通过下列代码访问知乎任何页面就是登录状态。&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;cookies&amp;nbsp;=&amp;nbsp;new&amp;nbsp;CookieContainer();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;addCookieToContainer(strCookies,&amp;nbsp;cookies,&amp;nbsp;&amp;quot;zhihu.com&amp;quot;);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;CookieAwareWebClient&amp;nbsp;webClient&amp;nbsp;=&amp;nbsp;new&amp;nbsp;CookieAwareWebClient(cookies);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;webClient.Headers.Add(HttpRequestHeader.Host,&amp;nbsp;&amp;quot;www.zhihu.com&amp;quot;);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;webClient.Headers.Add(HttpRequestHeader.Referer,&amp;nbsp;&amp;quot;https://www.zhihu.com/&amp;quot;);&lt;/pre&gt;&lt;p&gt;知道了第一种方式，第二种方式就很简单了，其实就是如何通过技术手段获取到Cookie，我们同样使用抓包。&lt;/p&gt;&lt;blockquote&gt;&lt;p&gt;_xsrf:28584f1e1e9938ffda9b449eb26b4635 password:19000000 captcha:1234 remember_me:true phone_num:13774564000&lt;/p&gt;&lt;/blockquote&gt;&lt;p&gt;_xsrf为跨域验证字符串，password为用户密码，remember_me为是否记住密码，phone_num为手机号搞明白了这些就好办了&lt;/p&gt;&lt;p&gt;获取验证码代码&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;string&amp;nbsp;url&amp;nbsp;=&amp;nbsp;&amp;quot;http://www.zhihu.com/captcha.gif?r=1466524792819&amp;amp;type=login&amp;quot;;&amp;nbsp;&amp;nbsp;//验证码页面&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebRequest&amp;nbsp;request&amp;nbsp;=&amp;nbsp;(HttpWebRequest)WebRequest.Create(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Method&amp;nbsp;=&amp;nbsp;&amp;quot;GET&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Host&amp;nbsp;=&amp;nbsp;&amp;quot;www.zhihu.com&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Accept&amp;nbsp;=&amp;nbsp;&amp;quot;*/*;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.UserAgent&amp;nbsp;=&amp;nbsp;&amp;quot;Mozilla/5.0&amp;nbsp;(Windows&amp;nbsp;NT&amp;nbsp;10.0;&amp;nbsp;WOW64)&amp;nbsp;AppleWebKit/537.36&amp;nbsp;(KHTML,&amp;nbsp;like&amp;nbsp;Gecko)&amp;nbsp;Chrome/49.0.2623.112&amp;nbsp;Safari/537.36&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.ContentType&amp;nbsp;=&amp;nbsp;&amp;quot;application/x-www-form-urlencoded&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.AllowAutoRedirect&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.CookieContainer&amp;nbsp;=&amp;nbsp;cookies;&amp;nbsp;//暂存到新实例&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//request.CookieContainer&amp;nbsp;=&amp;nbsp;cookies;&amp;nbsp;//此处使用获取验证码的那个cookie&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebResponse&amp;nbsp;response&amp;nbsp;=&amp;nbsp;(HttpWebResponse)request.GetResponse();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;MemoryStream&amp;nbsp;ms&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;using&amp;nbsp;(var&amp;nbsp;stream&amp;nbsp;=&amp;nbsp;response.GetResponseStream())
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Byte[]&amp;nbsp;buffer&amp;nbsp;=&amp;nbsp;new&amp;nbsp;Byte[response.ContentLength];
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;int&amp;nbsp;offset&amp;nbsp;=&amp;nbsp;0,&amp;nbsp;actuallyRead&amp;nbsp;=&amp;nbsp;0;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;do
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;actuallyRead&amp;nbsp;=&amp;nbsp;stream.Read(buffer,&amp;nbsp;offset,&amp;nbsp;buffer.Length&amp;nbsp;-&amp;nbsp;offset);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;offset&amp;nbsp;+=&amp;nbsp;actuallyRead;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;while&amp;nbsp;(actuallyRead&amp;nbsp;&amp;gt;&amp;nbsp;0);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ms&amp;nbsp;=&amp;nbsp;new&amp;nbsp;MemoryStream(buffer);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;response.Close();
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookies&amp;nbsp;=&amp;nbsp;request.CookieContainer;&amp;nbsp;//保存cookies&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;strCookies&amp;nbsp;=&amp;nbsp;request.CookieContainer.GetCookieHeader(request.RequestUri);&amp;nbsp;//把cookies转换成字符串&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;BitmapImage&amp;nbsp;imgSource&amp;nbsp;=&amp;nbsp;new&amp;nbsp;BitmapImage();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;imgSource.BeginInit();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;imgSource.StreamSource&amp;nbsp;=&amp;nbsp;new&amp;nbsp;MemoryStream(ms.ToArray());
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;imgSource.EndInit();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;icaptcha.Source&amp;nbsp;=&amp;nbsp;imgSource;&lt;/pre&gt;&lt;p&gt;获取xsrf代码&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;&amp;nbsp;private&amp;nbsp;string&amp;nbsp;GetXsrf(string&amp;nbsp;uri)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebRequest&amp;nbsp;request&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;url&amp;nbsp;=&amp;nbsp;uri;&amp;nbsp;&amp;nbsp;&amp;nbsp;//登录页面&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request&amp;nbsp;=&amp;nbsp;(HttpWebRequest)WebRequest.Create(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Method&amp;nbsp;=&amp;nbsp;&amp;quot;get&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.CookieContainer&amp;nbsp;=&amp;nbsp;new&amp;nbsp;CookieContainer();&amp;nbsp;//暂存到新实例&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//request.CookieContainer&amp;nbsp;=&amp;nbsp;cookies;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Accept&amp;nbsp;=&amp;nbsp;&amp;quot;*/*;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.UserAgent&amp;nbsp;=&amp;nbsp;&amp;quot;Mozilla/4.0&amp;nbsp;(compatible;&amp;nbsp;MSIE&amp;nbsp;8.0;&amp;nbsp;Windows&amp;nbsp;NT&amp;nbsp;6.1;&amp;nbsp;Trident/5.0;&amp;nbsp;SLCC2;&amp;nbsp;.NET&amp;nbsp;CLR&amp;nbsp;2.0.50727;&amp;nbsp;.NET&amp;nbsp;CLR&amp;nbsp;3.5.30729;&amp;nbsp;.NET&amp;nbsp;CLR&amp;nbsp;3.0.30729;&amp;nbsp;Media&amp;nbsp;Center&amp;nbsp;PC&amp;nbsp;6.0;&amp;nbsp;.NET4.0C;&amp;nbsp;.NET4.0E;&amp;nbsp;InfoPath.3;&amp;nbsp;BOIE9;ZHCN)&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.ContentType&amp;nbsp;=&amp;nbsp;&amp;quot;application/x-www-form-urlencoded&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.AllowAutoRedirect&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.KeepAlive&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Referer&amp;nbsp;=&amp;nbsp;url;
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebResponse&amp;nbsp;response&amp;nbsp;=&amp;nbsp;(HttpWebResponse)request.GetResponse();
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;strWebData&amp;nbsp;=&amp;nbsp;string.Empty;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;using&amp;nbsp;(StreamReader&amp;nbsp;reader&amp;nbsp;=&amp;nbsp;new&amp;nbsp;StreamReader(response.GetResponseStream()))
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;strWebData&amp;nbsp;=&amp;nbsp;reader.ReadToEnd();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookies&amp;nbsp;=&amp;nbsp;request.CookieContainer;&amp;nbsp;//保存cookies&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;strCookies&amp;nbsp;=&amp;nbsp;request.CookieContainer.GetCookieHeader(request.RequestUri);&amp;nbsp;//把cookies转换成字符串&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;strWebData.Substring(strWebData.IndexOf(&amp;quot;_xsrf&amp;quot;)&amp;nbsp;+&amp;nbsp;14,&amp;nbsp;32);//此处测试使用为了提升性能可以用正则表达式&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;实现登录代码，记住这里的CookieContainer一定要保留到后续请求使用&lt;/p&gt;&lt;pre class="brush:c#;toolbar:false"&gt;&amp;nbsp;private&amp;nbsp;string&amp;nbsp;Login(string&amp;nbsp;name,&amp;nbsp;string&amp;nbsp;password,&amp;nbsp;string&amp;nbsp;yzm)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebRequest&amp;nbsp;request&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;url&amp;nbsp;=&amp;nbsp;&amp;quot;http://www.zhihu.com/login/phone_num&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request&amp;nbsp;=&amp;nbsp;(HttpWebRequest)WebRequest.Create(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Method&amp;nbsp;=&amp;nbsp;&amp;quot;POST&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Host&amp;nbsp;=&amp;nbsp;&amp;quot;www.zhihu.com&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.Accept&amp;nbsp;=&amp;nbsp;&amp;quot;*/*;&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.UserAgent&amp;nbsp;=&amp;nbsp;&amp;quot;Mozilla/5.0&amp;nbsp;(Windows&amp;nbsp;NT&amp;nbsp;10.0;&amp;nbsp;WOW64)&amp;nbsp;AppleWebKit/537.36&amp;nbsp;(KHTML,&amp;nbsp;like&amp;nbsp;Gecko)&amp;nbsp;Chrome/49.0.2623.112&amp;nbsp;Safari/537.36&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.ContentType&amp;nbsp;=&amp;nbsp;&amp;quot;application/x-www-form-urlencoded&amp;quot;;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.AllowAutoRedirect&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//cookies.Add(new&amp;nbsp;Uri(&amp;quot;http://www.zhihu.com&amp;quot;),&amp;nbsp;new&amp;nbsp;Cookie(&amp;quot;_xsrf&amp;quot;,&amp;nbsp;_xsrf));
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.CookieContainer&amp;nbsp;=&amp;nbsp;cookies;&amp;nbsp;//此处使用获取验证码的那个cookie&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.KeepAlive&amp;nbsp;=&amp;nbsp;true;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;var&amp;nbsp;_xsrf&amp;nbsp;=&amp;nbsp;GetXsrf(url);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;postData&amp;nbsp;=&amp;nbsp;string.Format(&amp;quot;_xsrf={0}&amp;amp;password={1}&amp;amp;captcha={3}&amp;amp;remember_me=true&amp;amp;email={2}&amp;quot;,&amp;nbsp;_xsrf,&amp;nbsp;password,&amp;nbsp;name,&amp;nbsp;yzm);
+
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;postData&amp;nbsp;=&amp;nbsp;string.Format(&amp;quot;password={0}&amp;amp;captcha={2}&amp;amp;remember_me=false&amp;amp;phone_num={1}&amp;quot;,&amp;nbsp;password,&amp;nbsp;name,&amp;nbsp;yzm);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;byte[]&amp;nbsp;postdatabyte&amp;nbsp;=&amp;nbsp;Encoding.UTF8.GetBytes(postData);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;request.ContentLength&amp;nbsp;=&amp;nbsp;postdatabyte.Length;
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;using&amp;nbsp;(Stream&amp;nbsp;stream&amp;nbsp;=&amp;nbsp;request.GetRequestStream())
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;stream.Write(postdatabyte,&amp;nbsp;0,&amp;nbsp;postdatabyte.Length);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HttpWebResponse&amp;nbsp;response&amp;nbsp;=&amp;nbsp;(HttpWebResponse)request.GetResponse();
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;string&amp;nbsp;strWebData&amp;nbsp;=&amp;nbsp;string.Empty;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;using&amp;nbsp;(StreamReader&amp;nbsp;reader&amp;nbsp;=&amp;nbsp;new&amp;nbsp;StreamReader(response.GetResponseStream()))
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;strWebData&amp;nbsp;=&amp;nbsp;reader.ReadToEnd();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;cookies&amp;nbsp;=&amp;nbsp;request.CookieContainer;&amp;nbsp;//保存cookies&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;strCookies&amp;nbsp;=&amp;nbsp;request.CookieContainer.GetCookieHeader(request.RequestUri);&amp;nbsp;//把cookies转换成字符串&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;strWebData;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p&gt;不管你使用哪种方式，都要记得CookieContainer一定要用于后续的请求，相当于是身份认证的标示。&lt;/p&gt;</content>
+        <tag>知乎</tag>
+        <pubTime>2016-11-11T09:16:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/06025285-26e0-481f-b407-a74a00db479b.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/9e04d0bc-1adb-447b-90d3-a74a00e65a8a</loc>
+    <lastmod>2016-09-05</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在Mac上写一个抓包工具-入门篇</title>
+        <content>&lt;p&gt;之前在Windows上用.Net写过一个抓取TCP包的一个工具，但是越来越多周围的同事使用Mac，最近打算把她迁移到Mac上来，我在Windows上基于winpcap进行开发的，libpcap是winpcap的Linux版本，著名的tcpdump就是使用libpcap进行抓包的，Mac当然也可以使用libpcap进行抓包。&lt;/p&gt;&lt;p&gt;在Windows上我的方案是&lt;/p&gt;&lt;p&gt;1、WPF&lt;/p&gt;&lt;p&gt;2、Pcap.Net&lt;/p&gt;&lt;p&gt;3、Winpcap&lt;/p&gt;&lt;p&gt;由于Pcap.Net只适用于Winpcap，所以在Mac上需要替换成SharpPcap，SharpPcap封装了Winpcap以及libpcap的功能，所以在Mac上我的解决方案采用&lt;/p&gt;&lt;p&gt;1、Xamarin Cocoa App&lt;/p&gt;&lt;p&gt;2、SharpPcap&lt;/p&gt;&lt;p&gt;3、libpcap&lt;/p&gt;&lt;p&gt;首先到&lt;a href="http://www.tcpdump.org" target="_blank"&gt;http://www.tcpdump.org&lt;/a&gt; 下载&lt;code&gt;libpcap&lt;/code&gt;，进入到源码目录输入命令&lt;/p&gt;&lt;pre&gt;./configure
+make
+make&amp;nbsp;install&lt;/pre&gt;&lt;p&gt;执行成功后就可以直接在Tamarin上引用SharpPcap了，需要注意的是我们需要修改&lt;code&gt;SharpPcap.dll.config&lt;/code&gt;&lt;/p&gt;&lt;pre&gt;&amp;lt;configuration&amp;gt;
+&amp;nbsp;&amp;nbsp;&amp;lt;dllmap&amp;nbsp;dll=&amp;quot;wpcap&amp;quot;&amp;nbsp;target=&amp;quot;libpcap.dylib&amp;quot;&amp;nbsp;/&amp;gt;
+&amp;lt;/configuration&amp;gt;&lt;/pre&gt;&lt;p&gt;在Mac上不是&lt;code&gt;libpcap.so&lt;/code&gt; 而是&lt;code&gt;libpcap.dylib&lt;/code&gt; 具体信息可以参考&lt;/p&gt;&lt;pre&gt;http://www.mono-project.com/Interop_with_Native_Libraries#Library_Names&lt;/pre&gt;&lt;p&gt;当然不是到此为止了，此时的libpcap在非root的用户下并不可以执行，由于libpcap库使用raw socket的套接字。而raw socket的使用需要root权限，否则raw socket会创建失败，因此基于raw socket编写的应用程序必须在root具有用户权限才能使用。&lt;/p&gt;&lt;p&gt;为了让基于Raw Socket应用程序在非Root用户下能够执行，在你编译完基于Raw Socket的应用程序之后，执行下面3步：&lt;/p&gt;&lt;p&gt;&lt;strong&gt;进入root用户权限，若已经在root用户权限下忽略这一步&lt;/strong&gt;&lt;/p&gt;&lt;pre&gt;sudo&amp;nbsp;-i&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;#&amp;nbsp;输入root密码&lt;/pre&gt;&lt;p&gt;到此为止SharpPcap可以在你的Xamarin Cocoa App上正常使用了&lt;/p&gt;</content>
+        <tag />
+        <pubTime>2016-09-05T09:58:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/e527fe0f-20c1-4ce5-aa4d-a74a00e6585a.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/f7050683-8fb9-4a44-b013-a74a00e5019a</loc>
+    <lastmod>2016-05-24</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在Windows 10中开启Linux子系统体验</title>
+        <content>&lt;p style="text-align: left;"&gt;最新版本的Windows 10中已经集成了Linux子系统，大家可以到控制面板中找到程序-启用或关闭windows功能，然后找到“适用于 Linux 的 Windows 子系统（Beta）”，勾选安装&amp;nbsp;&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/c33ea856-9757-46b9-a142-a74a00e39ac4.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;&amp;nbsp;安装完成后系统会要求重启，重启后打开开命令提示符（cmd），输入bash，会提示需要从windows 应用商店下载，按y确认。该过程比较长。等待漫长的下载过程完成后就会正式进入bash啦。&amp;nbsp;&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/50cb9fe4-a918-4bec-a2e6-a74a00e39b08.png" width="600" height="314" border="0" vspace="0" title="" alt="" style="width: 600px; height: 314px;"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;现在可以输入lsb_release -a命令查看子系统版本，发现是ubuntu14.04，目前子系统某些情况下无法运行，运行多个后会提示“无法启动bash，因为 LX 子系统有一个安装、卸载或维修操作未完成”&amp;nbsp;&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/4a999257-7880-421a-8ba2-a74a00e39b48.png" width="600" height="390" border="0" vspace="0" title="" alt="" style="width: 600px; height: 390px;"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;其实在bash模式下，Ubuntu是作为Windows 10 的子系统挂载到Linux系统中。 所有的Windows文件都被挂载到 Linux的&amp;nbsp;/mnt/&amp;nbsp;下面的盘符 。如C盘对应的是&amp;nbsp;/mnt/c，D盘对应的是&amp;nbsp;/mnt/d&amp;nbsp;安装好的Ubuntu子系统安装文件路径：&lt;br/&gt;&lt;/p&gt;&lt;blockquote style="text-align: left;"&gt;&lt;p style="text-align: left;"&gt;%localappdata%\lxss&lt;/p&gt;&lt;p style="text-align: left;"&gt;%localappdata%\lxss\rootfs&amp;nbsp;&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;可以直接按Win+R输入相关命令即可跳转到相应的文件夹中。&lt;br style="text-align: left;"/&gt;&lt;/p&gt;&lt;p&gt;&lt;br style="text-align: left;"/&gt;&lt;/p&gt;</content>
+        <tag>Windows</tag>
+        <pubTime>2016-05-24T09:49:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/a340159f-f719-44ab-8160-a74a00e4fdbe.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/829d5aed-77de-4661-a895-a74a00e01faa</loc>
+    <lastmod>2016-03-25</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在UWP应用中禁用&amp;开启截取应用屏幕</title>
+        <content>&lt;p style="text-align: left;"&gt;用过iOS支付宝的同学都应该知道，在切换App的时候界面是模糊的，为了防止自己的隐私数据被泄露，本文就是告诉大家如何在UWP应用中实现这个效果么。&lt;/p&gt;&lt;p style="text-align: left;"&gt;新建一个页面，在.xaml里加入下列代码&lt;/p&gt;&lt;pre&gt;&amp;lt;StackPanel&amp;nbsp;HorizontalAlignment=&amp;quot;Center&amp;quot;&amp;nbsp;VerticalAlignment=&amp;quot;Center&amp;quot;&amp;gt;
+&amp;nbsp;&amp;nbsp;&amp;lt;Button&amp;nbsp;x:Name=&amp;quot;CaptureButton&amp;quot;&amp;nbsp;Content=&amp;quot;Enable&amp;nbsp;Capture&amp;quot;&amp;nbsp;Click=&amp;quot;CaptureButton_Click&amp;quot;&amp;nbsp;/&amp;gt;
+&amp;nbsp;&amp;nbsp;&amp;lt;TextBlock&amp;nbsp;Name=&amp;quot;status&amp;quot;&amp;nbsp;Margin=&amp;quot;0,20,0,0&amp;quot;&amp;gt;&amp;lt;/TextBlock&amp;gt;&amp;nbsp;&amp;nbsp;&amp;lt;/StackPanel&amp;gt;&lt;/pre&gt;&lt;p style="text-align: left;"&gt;在.cs里面加入下面Click事件代码&lt;/p&gt;&lt;pre&gt;private&amp;nbsp;void&amp;nbsp;CaptureButton_Click(object&amp;nbsp;sender,&amp;nbsp;RoutedEventArgs&amp;nbsp;e)&amp;nbsp;&amp;nbsp;{&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(captureButton.Content.ToString()&amp;nbsp;==&amp;nbsp;&amp;quot;Enable&amp;nbsp;Capture&amp;quot;)&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;captureButton.Content&amp;nbsp;=&amp;nbsp;&amp;quot;Disable&amp;nbsp;Capture&amp;quot;;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;status.Text&amp;nbsp;=&amp;nbsp;&amp;quot;Screen&amp;nbsp;Capturing&amp;nbsp;is&amp;nbsp;enabled&amp;quot;;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().IsScreenCaptureEnabled&amp;nbsp;=&amp;nbsp;true;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;captureButton.Content&amp;nbsp;=&amp;nbsp;&amp;quot;Enable&amp;nbsp;Capture&amp;quot;;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;status.Text&amp;nbsp;=&amp;nbsp;&amp;quot;Screen&amp;nbsp;Capturing&amp;nbsp;is&amp;nbsp;disabled&amp;quot;;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().IsScreenCaptureEnabled&amp;nbsp;=&amp;nbsp;false;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&amp;nbsp;&amp;nbsp;}&lt;/pre&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/167bbc2b-edbe-4388-aca6-a74a00dfc92c.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;如果你关闭了截图功能,当你使用截图软件的时候，你会发现截取的是一个黑色的屏幕界面。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/2d270c20-8d64-4859-8e8a-a74a00dfc977.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;就此大功告成！！！&lt;/p&gt;&lt;p&gt;&lt;br style="text-align: left;"/&gt;&lt;/p&gt;</content>
+        <tag>UWP</tag>
+        <pubTime>2016-03-25T09:35:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/16475fa0-0e09-4d4e-9c23-a74a00e01a99.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/c071988a-cf4f-4ca6-ac4f-a74a00e28202</loc>
+    <lastmod>2015-12-06</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>Android开发中应该避免的内存泄露</title>
+        <content>&lt;p&gt;&lt;strong&gt;一、背景和目的：&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;目前许多开发人员在Android开发过程中，较少关注实现细节和内存使用，容易会造成内存泄露，导致程序OOM。&lt;/p&gt;&lt;p&gt;本文会通过代码向大家介绍在Android开发过程中常见的内存泄露。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;二、常见的内存泄露代码&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;1&lt;/strong&gt;&lt;strong&gt;、使用Handler&lt;/strong&gt;&lt;strong&gt;造成的内存问题&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;在Android开发过程中，Handler是比较常用的，通过Handler发送Message与主线程进行通信，Message发送之后是存储在MessageQueue中的，有些Message并不是马上被处理的，在Message中存在一个Target，是Handler的一个引用，如果Message在Handler中的存在时间过长，会导致Handler无法被回收。如果Handler非静态，则会导致相关引用的Activity或者Service不会回收，所以在处理Hanlder之类的内部类的时候，应该要将Handler定义为静态内部类，同样在使用HandlerThread的时候也需要注意，我们来看看代码：&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;class&amp;nbsp;MainActivity&amp;nbsp;extends&amp;nbsp;AppCompatActivity{
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;@Override
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;protected&amp;nbsp;void&amp;nbsp;onCreate(Bundle&amp;nbsp;savedInstanceState){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;super.onCreate(savedInstanceState);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;setContentView(R.layout.activity_main);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;HandlerThread&amp;nbsp;mThread&amp;nbsp;=&amp;nbsp;new&amp;nbsp;HandlerThread(&amp;quot;threadTask&amp;quot;,Process.THREAD_PROIORITY_BACKGROUND);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;mThread.start();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Handler&amp;nbsp;mHander&amp;nbsp;=&amp;nbsp;new&amp;nbsp;Handler(mThread.getLooper());
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//TODO...
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+}&lt;/pre&gt;&lt;p&gt;这个代码存在泄漏问题，因为HandlerThread内部会不断的循环执行，它不会自己结束，线程的生命周期超过了activity生命周期，当横竖屏切换，HandlerThread线程的数量会随着activity重建次数的增加而增加。&lt;/p&gt;&lt;p&gt;我们应该在onDestroy时将线程停止掉：mThread.getLooper().quit();&lt;/p&gt;&lt;p&gt;另外，对于不是HandlerThread的线程，也应该确保activity消耗后，线程已经终止，可以这样做：在onDestroy时调用mThread.join();&lt;/p&gt;&lt;p&gt;&lt;strong&gt;2&lt;/strong&gt;&lt;strong&gt;、使用非静态内部类的静态实例&lt;/strong&gt;&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;class&amp;nbsp;MainActivity&amp;nbsp;extends&amp;nbsp;AppCompatActivity{
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;class&amp;nbsp;OtherClass{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;private&amp;nbsp;static&amp;nbsp;OtherClass&amp;nbsp;sInstance&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;@Override
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;protected&amp;nbsp;void&amp;nbsp;onCreate(Bundle&amp;nbsp;savedInstanceState){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;super.onCreate(savedInstanceState);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;setContentView(R.layout.activity_main);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if(sInstance&amp;nbsp;==&amp;nbsp;null){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;sInstance&amp;nbsp;=&amp;nbsp;new&amp;nbsp;OtherClass();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+}&lt;/pre&gt;&lt;p&gt;上面的代码中的sInstance实例类型为静态实例，在第一个MainActivityact实例创建时，sInstance会获得并一直持有activity的引用。当MainAcitivity销毁后重建，因为sInstance持有activity的引用，所以activity是无法被GC回收的，进程中会存在2个MainActivity实例（activity和重建后的MainActivity实例），这个activity对象就是一个无用的但一直占用内存的对象，即无法回收的垃圾对象。所以，对于lauchMode不是singleInstance的Activity，应该避免在activity里面实例化其非静态内部类的静态实例。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;3&lt;/strong&gt;&lt;strong&gt;、在Activity&lt;/strong&gt;&lt;strong&gt;中使用静态成员&lt;/strong&gt;&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;class&amp;nbsp;MainActivity&amp;nbsp;extends&amp;nbsp;AppCompatActivity{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;private&amp;nbsp;static&amp;nbsp;Drawable&amp;nbsp;sBackground&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;@Override
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;protected&amp;nbsp;void&amp;nbsp;onCreate(Bundle&amp;nbsp;savedInstanceState){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;super.onCreate(savedInstanceState);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;setContentView(R.layout.activity_main);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;TextView&amp;nbsp;label&amp;nbsp;=&amp;nbsp;new&amp;nbsp;TextView(this);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if(sBackground&amp;nbsp;==&amp;nbsp;null){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;sBackground&amp;nbsp;=&amp;nbsp;getDrawable(R.mipmap.ic_launcher);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;label.setBackgroundDrawable(sBackground);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+}&lt;/pre&gt;&lt;p&gt;由于用静态成员sBackground 缓存了drawable对象，所以activity加载速度会加快，但是这样做是错误的。因为它会导致activity销毁后无法被系统回收。label.setBackgroundDrawable函数调用会将label赋值给sBackground的成员变量。上面代码意味着：sBackground（GC Root）会持有TextView对象，而TextView持有Activiy对象。所以导致Activity对象无法被系统回收。&lt;/p&gt;&lt;p&gt;以上2个例子的内存泄漏都是因为Activity的引用的生命周期超越了activity对象的生命周期。也就是常说的Context泄漏，想要避免context相关的内存泄漏，需要注意以下几点：&lt;/p&gt;&lt;p&gt;l 不要对activity的context长期引用(activity的引用的生存周期应该和activity的生命周期相同)&lt;/p&gt;&lt;p&gt;l 在可以使用application的context的情况下，尽可能使用application的context来替代和activity相关的context&lt;/p&gt;&lt;p&gt;l 如果一个acitivity的非静态内部类的生命周期不受控制，那么我们就应该避免这样使用。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;4&lt;/strong&gt;&lt;strong&gt;、注册某个对象后未注销&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;注册广播接收器、注册观察者等等，比如： 在调用registerReceiver后，若未调用unregisterReceiver，它会导致BroadcastReceiver不会被unregister而导致内存泄露，我们经常会看到类似下面的代码：&lt;/p&gt;&lt;pre&gt;registerReceiver(new&amp;nbsp;BroadcastReceiver(){
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;@Override
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;void&amp;nbsp;onReceive(Context&amp;nbsp;context,Intent&amp;nbsp;intent){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;//TODO...
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+},filter);&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;5&lt;/strong&gt;&lt;strong&gt;、集合中对象没清理造成的内存泄露&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;我们通常把一些对象的引用加入到了集合中，当我们不需要该对象时，如果没有把它的引用从集合中清理掉，这样这个集合就会越来越大。如果这个集合是static的话，如果对象不断增大，达到一定的值的时候程序就会OOM&lt;/p&gt;&lt;p&gt;&lt;strong&gt;6&lt;/strong&gt;&lt;strong&gt;、资源对象没关闭造成的内存泄露&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;资源性对象比如(Cursor，File文件等)往往都用了一些缓冲，我们在不使用的时候，应该及时关闭它们，以便它们的缓冲及时回收内存。它们的缓冲不仅存在于Java虚拟机内，还存在于Java虚拟机外。如果我们仅仅是把它的引用设置为null,而不关闭它们，往往会造成内存泄露。因为有些资源性对象，比如SQLiteCursor(在析构函数finalize(),如果我们没有关闭它，它自己会调close()关闭)，如果我们没有关闭它，系统在回收它时也会关闭它，但是这样的效率太低了。因此对于资源性对象在不使用的时候，应该立即调用它的close()函数，将其关闭掉，然后再置为null.在我们的程序退出时一定要确保我们的资源性对象已经关闭。&lt;/p&gt;&lt;p&gt;程序中经常会进行查询数据库的操作，但是经常会有使用完毕Cursor后没有关闭的情况。如果我们的查询结果集比较小，对内存的消耗不容易被发现，只有在长时间大量操作的情况下才会复现内存问题，这样就会给以后的测试和问题排查带来困难和风险。&lt;/p&gt;&lt;p&gt;写代码时，经常会有人忘记调用close, 或者因为代码逻辑问题状况导致close未被调用。&lt;/p&gt;&lt;p&gt;错误的代码：&lt;/p&gt;&lt;pre&gt;try{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Cursor&amp;nbsp;c&amp;nbsp;=&amp;nbsp;queryCursor();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;int&amp;nbsp;a&amp;nbsp;=&amp;nbsp;c.getInt(2);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;c.close();
+}catch(Exception&amp;nbsp;ex){
+
+}&lt;/pre&gt;&lt;p&gt;修正后的代码：&lt;/p&gt;&lt;pre&gt;Cursor&amp;nbsp;c&amp;nbsp;=&amp;nbsp;null;
+try{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;c&amp;nbsp;=&amp;nbsp;queryCursor();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;int&amp;nbsp;a&amp;nbsp;=&amp;nbsp;c.getInt(2);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;c.close();
+}catch(Exception&amp;nbsp;ex){
+
+}finally{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if(c!=null){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;c.close();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+}&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;7&lt;/strong&gt;&lt;strong&gt;、一些不良代码成内存压力&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;有些代码并不造成内存泄露，但是它们或是对没使用的内存没进行有效及时的释放，或是没有有效的利用已有的对象而是频繁的申请新内存，对内存的回收和分配造成很大影响的，容易迫使虚拟机不得不给该应用进程分配更多的内存，增加vm的负担，造成不必要的内存开支。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;7.1&lt;/strong&gt; &lt;strong&gt;Bitmap&lt;/strong&gt;&lt;strong&gt;使用不当&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;一、需要及时的销毁。&lt;/p&gt;&lt;p&gt;虽然，系统能够确认Bitmap分配的内存最终会被销毁，但是由于它占用的内存过多，所以很可能会超过Java堆的限制。因此，在用完Bitmap时，要及时的recycle掉。recycle并不能确定立即就会将Bitmap释放掉，但是会给虚拟机一个暗示：“该图片可以释放了”。&lt;/p&gt;&lt;p&gt;二、需要设置一定的采样率。&lt;/p&gt;&lt;p&gt;有时候，我们要显示的区域很小，没有必要将整个图片都加载出来，而只需要记载一个缩小过的图片，这时候可以设置一定的采样率，那么就可以大大减小占用的内存。如下面的代码：&lt;/p&gt;&lt;pre&gt;BitmapFactory.Options&amp;nbsp;options&amp;nbsp;=&amp;nbsp;new&amp;nbsp;BitmapFactory.Options();
+options.inSampleSize&amp;nbsp;=&amp;nbsp;2;&amp;nbsp;//图片宽高都为原来的二分之一，图片为原来的额四分之一
+Bitmap&amp;nbsp;bitmap&amp;nbsp;=&amp;nbsp;BitmapFactory.decodeStream(is,null,options);&lt;/pre&gt;&lt;p&gt;三、巧妙的运用软引用（SoftRefrence）&lt;/p&gt;&lt;p&gt;有些时候，我们使用Bitmap后没有保留对它的引用，因此就无法调用Recycle函数。这时候巧妙的运用软引用，可以使Bitmap在内存不足时得到有效的释放。如下：&lt;/p&gt;&lt;pre&gt;SoftReference&amp;lt;Bitmap&amp;gt;&amp;nbsp;bitmap_ref&amp;nbsp;=&amp;nbsp;new&amp;nbsp;SoftReference&amp;lt;Bitmap&amp;gt;(BitmapFactory.decodeStream(is));
+if(bitmap_ref.get()!=null){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;bitmap_ref.get().recycle();&amp;nbsp;
+}&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;7.2&lt;/strong&gt;&lt;strong&gt;使用Adapter&lt;/strong&gt;&lt;strong&gt;时，没有使用缓存的 ConvertView&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;　　以构造ListView的BaseAdapter为例，在BaseAdapter中提共了方法：&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;View&amp;nbsp;getView(int&amp;nbsp;position,View&amp;nbsp;convertView,ViewGroup&amp;nbsp;parent){}&lt;/pre&gt;&lt;p&gt;　　来向ListView提供每一个item所需要的view对象。初始时ListView会从BaseAdapter中根据当前的屏幕布局实例化一定数量的view对象，同时ListView会将这些view对象缓存起来。当向上滚动ListView时，原先位于最上面的list item的view对象会被回收，然后被用来构造新出现的最下面的list item。这个构造过程就是由getView()方法完成的，getView()的第二个形参 View convertView就是被缓存起来的list item的view对象(初始化时缓存中没有view对象则convertView是null)。&lt;/p&gt;&lt;p&gt;　　由此可以看出，如果我们不去使用convertView，而是每次都在getView()中重新实例化一个View对象的话，即浪费时间，也造成内存垃圾，给垃圾回收增加压力，如果垃圾回收来不及的话，虚拟机将不得不给该应用进程分配更多的内存，造成不必要的内存开支。ListView回收list item的view对象的过程可以查看:&lt;/p&gt;&lt;p&gt;android.widget.AbsListView.Java&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;addScrapView&amp;nbsp;(View&amp;nbsp;scrap&amp;nbsp;,int&amp;nbsp;position)&lt;/pre&gt;&lt;p&gt;错误的代码：&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;View&amp;nbsp;getView&amp;nbsp;(int&amp;nbsp;position&amp;nbsp;,&amp;nbsp;View&amp;nbsp;convertView,ViewGroup&amp;nbsp;parent){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;View&amp;nbsp;&amp;nbsp;view&amp;nbsp;=&amp;nbsp;new&amp;nbsp;TextView(this);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;view;
+}&lt;/pre&gt;&lt;p&gt;修正示例代码：&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;View&amp;nbsp;getView&amp;nbsp;(int&amp;nbsp;position&amp;nbsp;,&amp;nbsp;View&amp;nbsp;convertView,ViewGroup&amp;nbsp;parent){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;View&amp;nbsp;view&amp;nbsp;=&amp;nbsp;null;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if(convertView&amp;nbsp;!=null){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;view&amp;nbsp;=(View)convertView.getTag();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}&amp;nbsp;else&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;view&amp;nbsp;=&amp;nbsp;new&amp;nbsp;TextView(this);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;convertView.setTag(view);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;view;
+}&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;7.3&lt;/strong&gt;&lt;strong&gt;适当的使用对象池&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;不要在经常调用的方法中创建对象，每次new之后都丢弃，尤其是忌讳在循环中创建对象。在android support v4包中包含Pools类，其实就是对象池，使用方法也比较简单，具体可以参考下面的MyPools这个类。&lt;/p&gt;&lt;pre&gt;public&amp;nbsp;class&amp;nbsp;MyPools{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;private&amp;nbsp;static&amp;nbsp;final&amp;nbsp;Pools.SynchronizedPool&amp;lt;MyPools&amp;gt;&amp;nbsp;sPool&amp;nbsp;=&amp;nbsp;new&amp;nbsp;Pools.SynchronizedPool&amp;lt;MyPools&amp;gt;(10);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;static&amp;nbsp;MyPools&amp;nbsp;obtain(){&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;MyPools&amp;nbsp;instance&amp;nbsp;=&amp;nbsp;sPool.acquire();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;return&amp;nbsp;(instance&amp;nbsp;!=&amp;nbsp;null)?instance&amp;nbsp;:new&amp;nbsp;MyPools();
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;public&amp;nbsp;void&amp;nbsp;recycle(){
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;sPool.release(this);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+
+}&lt;/pre&gt;</content>
+        <tag>Android内存泄露</tag>
+        <pubTime>2015-12-06T09:43:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/5f65f7cd-cbfb-478d-a5c8-a74a00e27c24.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/6753e518-a8b8-4657-b7e5-a74a00e11e9a</loc>
+    <lastmod>2015-10-24</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>抓取RTMP视频&amp;音频数据</title>
+        <content>&lt;p style="text-align: left;"&gt;需要的工具：抓包工具（这里我使用的是WireShark）、Rtmpdump&lt;/p&gt;&lt;p style="text-align: left;"&gt;一开始我思路是想分析下html查看下是否有直接的下载地址：&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/12167a20-a71a-4659-a4de-a74a00e09b93.png" width="600" height="306" border="0" vspace="0" title="" alt="" style="width: 600px; height: 306px;"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;查询到了meta.xml,在里面发现了stream的path，这时候发现是rtmp的无法直接下载， 于是想到使用WireShark工具抓包,利用meta.xml里面的 cp11276.edgefcs.net/ondemand ，首先ping 获取ip&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/0811575f-e5a3-4c63-9b39-a74a00e09c80.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;得到96.17.102.28，通过过滤ip得到下面rtmp的信息&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/087f25fa-f0bd-45e4-94d2-a74a00e09cee.png" width="600" height="132" border="0" vspace="0" title="" alt="" style="width: 600px; height: 132px;"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;url:&lt;/p&gt;&lt;blockquote style="text-align: left;"&gt;&lt;p style="text-align: left;"&gt;rtmp://96.17.102.28/ondemand?_fcs_vhost=cp11276.edgefcs.net&lt;br style="text-align: left;"/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;path:&lt;/p&gt;&lt;blockquote style="text-align: left;"&gt;&lt;p style="text-align: left;"&gt;mp3:media.thomson-webcast.net/index=/1/4/2/5/3/3/6/2/0/0/~/m/instances/8qfcz37z/items/5wurmfcb/clips/dvzgs4dr/0/clip?itemview=b8cchdaae5q3bafgzebcqk55w55m2g4sqc2f68z2nckpafpx_105059808&amp;amp;mmc_installation=mmc_production&amp;amp;mmc_installation_type=prod&lt;br style="text-align: left;"/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;在RtmpDump下面执行&lt;/p&gt;&lt;blockquote style="text-align: left;"&gt;&lt;p style="text-align: left;"&gt;rtmpdump -r &amp;quot;rtmp://96.17.102.28/ondemand?_fcs_vhost=cp11276.edgefcs.net&amp;quot; -y &amp;quot;mp3:media.thomson-webcast.net/index=/1/4/2/5/3/3/6/2/0/0/~/m/instances/8qfcz37z/items/5wurmfcb/clips/dvzgs4dr/0/clip?itemview=b8cchdaae5q3bafgzebcqk55w55m2g4sqc2f68z2nckpafpx_105059808&amp;amp;mmc_installation=mmc_production&amp;amp;mmc_installation_type=prod&amp;quot; -o webcast.mp3&lt;br style="text-align: left;"/&gt;&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/cdabdd3b-501e-4f63-a123-a74a00e09d33.png"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;下载成功得到webcast.mp3&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;img src="http://cdn.huafenfei.com/465e243a-0ec5-4c71-adfb-a74a00e09d54.png"/&gt;&lt;/p&gt;</content>
+        <tag>RTMP</tag>
+        <pubTime>2015-10-24T09:38:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/9077c951-8863-48e0-b9a7-a74a00e1101a.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/e45cb95b-6260-40f7-863a-a74a0121a9db</loc>
+    <lastmod>2015-10-14</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>在UWP应用中实现Gif播放</title>
+        <content>&lt;p&gt;众所周知，在UWP应用框架中，Image控件是无法播放GIF的图片，只能显示静态图，这样的体验不是特别友好。我在Win8、WP8.1的时候实现过gif播放功能，但是最近发现性能和播放效果都差强人意，大家可以看我的贴吧应用，目前还是用我以前写的gif控件，一些图片播放效果并不是很正确，或者内存消耗过高，主要原因是因为只对gif每帧做了简单的处理。&lt;/p&gt;&lt;pre&gt;var&amp;nbsp;frame&amp;nbsp;=&amp;nbsp;await&amp;nbsp;decoder.GetFrameAsync(frameIndex).AsTask(token);
+
+var&amp;nbsp;writeableBitmap&amp;nbsp;=&amp;nbsp;new&amp;nbsp;WriteableBitmap((int)decoder.OrientedPixelWidth,&amp;nbsp;(int)decoder.OrientedPixelHeight);
+
+BitmapFrame&amp;nbsp;bframe&amp;nbsp;=&amp;nbsp;await&amp;nbsp;decoder.GetFrameAsync(frameIndex).AsTask(token);
+
+TimeSpan&amp;nbsp;delay&amp;nbsp;=&amp;nbsp;TimeSpan.Zero;
+
+BitmapPropertySet&amp;nbsp;bitmapPropertySet&amp;nbsp;=
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;await&amp;nbsp;bframe.BitmapProperties.GetPropertiesAsync(new&amp;nbsp;List&amp;lt;string&amp;gt;()).AsTask(token);
+
+if&amp;nbsp;(bitmapPropertySet&amp;nbsp;!=&amp;nbsp;null)
+{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;BitmapPropertySet&amp;nbsp;delayPropertySet&amp;nbsp;=&amp;nbsp;await&amp;nbsp;(bitmapPropertySet[&amp;quot;/grctlext&amp;quot;].Value
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;as&amp;nbsp;BitmapPropertiesView).GetPropertiesAsync(new&amp;nbsp;List&amp;lt;string&amp;gt;&amp;nbsp;{&amp;nbsp;&amp;quot;/Delay&amp;quot;,&amp;nbsp;});
+
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if&amp;nbsp;(delayPropertySet&amp;nbsp;!=&amp;nbsp;null)
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;delay&amp;nbsp;=&amp;nbsp;TimeSpan.FromSeconds(double.Parse(delayPropertySet[&amp;quot;/Delay&amp;quot;].Value.ToString())&amp;nbsp;/&amp;nbsp;100.0);
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;}
+}
+
+if&amp;nbsp;(delay.Equals(TimeSpan.Zero))
+{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;delay&amp;nbsp;=&amp;nbsp;DefaultDelay;
+}
+
+var&amp;nbsp;bitmapTransform&amp;nbsp;=&amp;nbsp;new&amp;nbsp;BitmapTransform();
+var&amp;nbsp;pixelDataProvider&amp;nbsp;=&amp;nbsp;await&amp;nbsp;frame.GetPixelDataAsync(BitmapPixelFormat.Bgra8,
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;decoder.BitmapAlphaMode,&amp;nbsp;bitmapTransform,
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ExifOrientationMode.IgnoreExifOrientation,&amp;nbsp;ColorManagementMode.DoNotColorManage);
+var&amp;nbsp;pixels&amp;nbsp;=&amp;nbsp;pixelDataProvider.DetachPixelData();
+
+using&amp;nbsp;(var&amp;nbsp;bitmapStream&amp;nbsp;=&amp;nbsp;writeableBitmap.PixelBuffer.AsStream())
+{
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;bitmapStream.Write(pixels,&amp;nbsp;0,&amp;nbsp;pixels.Length);
+}&lt;/pre&gt;&lt;p&gt;这段代码，可以看出解析gif每帧没有对gif的参数做处理，只处理了delay属性，也就是每帧的播放间隔（这个播放间隔有个比较吭的地方，如果delay为zero一般来说需要加上100毫秒，用于做间隔，否则gif会播放的过快），但是没对其他的图片属性做处理，导致一些gif样式错误，但是这样的实现相对来说比较简单，性能效率什么的会更高，而且能适应大部分的gif播放，所以之前做了一些取舍。&lt;/p&gt;&lt;p&gt;时过境迁，前一段时间知道微软发布了win2d的图形加速引擎后，就特别感兴趣，看到微软用win2d实现了gif的播放demo，做了一些研究，将微软的播放demo做了一些改进，开发了uwp的图片框架&lt;a href="https://github.com/chenrensong/ImageLib.UWP" target="_blank"&gt;ImageLib.UWP&lt;/a&gt;,该项目已经发布到Github中（&lt;a href="https://github.com/chenrensong/ImageLib.UWP" target="_blank"&gt;https://github.com/chenrensong/ImageLib.UWP&lt;/a&gt;），同时也在nuget上发布了最新版本，大家可以通过&lt;/p&gt;&lt;pre&gt;Install-Package&amp;nbsp;ImageLib.UWP&lt;/pre&gt;&lt;p&gt;命令来安装。&lt;/p&gt;&lt;p&gt;ImageLib.UWP支持几乎所有的uri格式，借鉴了众多图片框架的优势，支持扩展图片解析器，这部分大家可以在demo中看到，本文暂时不介绍具体的实现原理，下一次我会和大家详细介绍，如果在使用中遇到问题，欢迎留言。&lt;/p&gt;</content>
+        <tag>UWP</tag>
+        <pubTime>2015-10-14T01:33:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/b9f1003a-5ff6-40a6-9404-a74a01218262.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/cdc9a942-876f-4c8e-9105-a74a00e5d115</loc>
+    <lastmod>2015-07-02</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>Win10中使用File Transfer Manager下载MSDN资源</title>
+        <content>&lt;p style="text-align: left;"&gt;FTM是微软MSDN专用的下载工具，微软发布了Visual Studio 2015 pre-RTM，目前通过FTM下载比较快速，但是在Windows10上无法直接使用，必须到安装目录，用带有管理员权限的CMD执行：&lt;/p&gt;&lt;blockquote style="text-align: left;"&gt;&lt;p style="text-align: left;"&gt;regsvr32 grTransferCtrl.dll&lt;/p&gt;&lt;p style="text-align: left;"&gt;regsvr32 grTransferMgr.dll&lt;/p&gt;&lt;/blockquote&gt;&lt;p style="text-align: left;"&gt;重新打开IE，如果发现还是不能使用，只能下到download.dlm文件的话，说明还没成功，那就要将download.dlm文件放入下列地址即可&amp;nbsp;%UserProfile%\Application Data\Microsoft\File Transfer Manager\RequestQueue这个目录&lt;/p&gt;&lt;p style="text-align: left;"&gt;在我机器上是C:\Users\chenrensong\AppData\Roaming\Microsoft\File Transfer Manager\RequestQueue，关闭FTM,把上面的download.dlm放入上述文件夹，然后启动FTM。弹出了下载设置界面，就可以成功下载VS2015 pre-RTM了。&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;img src="http://cdn.huafenfei.com/00b26a55-a7c1-4a40-8c08-a74a00e57617.png" width="600" height="339" border="0" vspace="0" title="" alt="" style="width: 600px; height: 339px;"/&gt;&lt;/p&gt;</content>
+        <tag>Windows</tag>
+        <pubTime>2015-07-02T09:56:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/1c390031-88cd-460e-8f1d-a74a00e5ca37.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/cbf44fae-2285-493d-ba24-a74a00e335e1</loc>
+    <lastmod>2014-09-24</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>ubuntu14.04 配置jdk1.7</title>
+        <content>&lt;h3 id="第一步下载jdk-7-linux-i586.tar.gz"&gt;第一步：下载jdk-7-linux-i586.tar.gz&lt;/h3&gt;&lt;pre&gt;wget&amp;nbsp;-c&amp;nbsp;http://download.oracle.com/otn-pub/java/jdk/7/jdk-7-linux-i586.tar.gz&lt;/pre&gt;&lt;p&gt;&lt;code&gt;(注：如果下载不下来，建议使用迅雷下载，然后拷贝到Linux系统上。)&lt;/code&gt;&lt;/p&gt;&lt;h3 id="第二步解压安装"&gt;第二步：解压安装&lt;/h3&gt;&lt;pre&gt;sudo&amp;nbsp;mkdir&amp;nbsp;/usr/lib/jvm&lt;/pre&gt;&lt;pre&gt;sudo&amp;nbsp;tar&amp;nbsp;zxvf&amp;nbsp;jdk-7u5-linux-x64.tar.gz&amp;nbsp;-C&lt;/pre&gt;&lt;h3 id="第三步修改环境变量"&gt;第三步：修改环境变量&lt;/h3&gt;&lt;pre&gt;sudo&amp;nbsp;gedit&amp;nbsp;/etc/profile&lt;/pre&gt;&lt;p&gt;添加：&lt;/p&gt;&lt;pre&gt;set&amp;nbsp;java&amp;nbsp;environment
+export&amp;nbsp;JAVA_HOME=/usr/lib/jvm/java-7-sun
+export&amp;nbsp;JRE_HOME=${JAVA_HOME}/jre
+export&amp;nbsp;CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib&amp;nbsp;
+export&amp;nbsp;PATH=${JAVA_HOME}/bin:$PATH&lt;/pre&gt;&lt;p&gt;保存退出，输入以下命令使之立即生效。&lt;/p&gt;&lt;h3 id="第四步配置默认jdk版本"&gt;第四步：配置默认JDK版本&lt;/h3&gt;&lt;p&gt;为了将我们安装的JDK设置为默认JDK版本，还要进行如下工作。&lt;br/&gt;执行代码:&lt;/p&gt;&lt;pre&gt;sudo&amp;nbsp;update-alternatives&amp;nbsp;--install&amp;nbsp;/usr/bin/java&amp;nbsp;java&amp;nbsp;/usr/lib/jvm/java-7-sun/bin/java&amp;nbsp;300&lt;/pre&gt;&lt;pre&gt;sudo&amp;nbsp;update-alternatives&amp;nbsp;--install&amp;nbsp;/usr/bin/javac&amp;nbsp;javac&amp;nbsp;/usr/lib/jvm/java-7-sun/bin/javac&amp;nbsp;300&lt;/pre&gt;&lt;p&gt;执行代码：&lt;/p&gt;&lt;pre&gt;sudo&amp;nbsp;update-alternatives&amp;nbsp;--config&amp;nbsp;java&lt;/pre&gt;&lt;p&gt;系统会列出各种JDK版本，如下所示：&lt;/p&gt;&lt;pre&gt;chenrensong.com@linux:~$&amp;nbsp;sudo&amp;nbsp;update-alternatives&amp;nbsp;--config&amp;nbsp;java&amp;nbsp;&amp;nbsp;
+有&amp;nbsp;3&amp;nbsp;个候选项可用于替换&amp;nbsp;java&amp;nbsp;(提供&amp;nbsp;/usr/bin/java)。&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;选择&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;路径&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;优先级&amp;nbsp;&amp;nbsp;状态&amp;nbsp;&amp;nbsp;
+------------------------------------------------------------&amp;nbsp;&amp;nbsp;
+*&amp;nbsp;0&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/usr/lib/jvm/java-6-openjdk/jre/bin/java&amp;nbsp;&amp;nbsp;&amp;nbsp;1061&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;自动模式&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;1&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/usr/lib/jvm/java-6-openjdk/jre/bin/java&amp;nbsp;&amp;nbsp;&amp;nbsp;1061&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;手动模式&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;2&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/usr/lib/jvm/java-6-sun/jre/bin/java&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;63&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;手动模式&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;3&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/usr/lib/jvm/java-7-sun/bin/java&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;300&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;手动模式&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;
+&amp;nbsp;&amp;nbsp;
+要维持当前值[*]请按回车键，或者键入选择的编号：3&amp;nbsp;&amp;nbsp;
+update-alternatives:&amp;nbsp;使用&amp;nbsp;/usr/lib/jvm/java-7-sun/bin/java&amp;nbsp;来提供&amp;nbsp;/usr/bin/java&amp;nbsp;(java)，于&amp;nbsp;手动模式&amp;nbsp;中。&lt;/pre&gt;&lt;h3 id="第五步测试"&gt;第五步：测试&lt;/h3&gt;&lt;pre&gt;java&amp;nbsp;-version&amp;nbsp;（会显示如下信息，说明已配置成功）
+java&amp;nbsp;version&amp;nbsp;&amp;quot;1.7.0&amp;quot;
+Java(TM)&amp;nbsp;SE&amp;nbsp;Runtime&amp;nbsp;Environment&amp;nbsp;(build&amp;nbsp;1.7.0-b147)
+Java&amp;nbsp;HotSpot(TM)&amp;nbsp;Client&amp;nbsp;VM&amp;nbsp;(build&amp;nbsp;21.0-b17,&amp;nbsp;mixed&amp;nbsp;mode)&lt;/pre&gt;</content>
+        <tag>jdkubuntu</tag>
+        <pubTime>2014-09-24T09:46:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/994af517-0a92-47f3-8a02-a74a00e30650.png" />
+      </display>
+    </data>
+  </url>
+  <url>
+    <loc>http://www.datiancun.com/post/a61f19fa-c79c-475a-9d4d-a74a0093bb37</loc>
+    <lastmod>2014-05-28</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1</priority>
+    <data>
+      <display>
+        <title>MVVM的前世今生</title>
+        <content>&lt;p style="text-align: left;"&gt;&lt;strong&gt;1、前言&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;近年来智能手机发展相对迅速，硬件配置也逐步提高，为了追求更丰富的用户体验。适应这种变化，在应用开发过程的分工要求更加细致，一部分人负责界面设计，一部分人负责业务逻辑设计。这种分工写作给设计模式带来新的要求，一方面要保持系统易于理解和维护、良好的扩展性和低耦合度，另外一方面要追求业务逻辑、呈现逻辑和UI逻辑的分离，使得界面设计和程序控制开发可以同步进行。目前在IOS ANDROID应用开发中，使用比较多的有MVC(Model-View-Controller)、MVP(Model-View-Presenter)等设计模式，但是这些模式并不能完全将UI设计分离。为此将呈现逻辑从视图中独立出来，同时将界面数据从模型中独立出来，组成视图模型(ViewModel)模块，形成了MVVM(Model-View-ViewModel)模型，我们可以认为MVVM是MVC、MVP这类架构的变种。MVVM模式不但能够实现UI设计的分离，而且能充分发挥RIA技术中的数据绑定的技术和特点，提高软件的复用性。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;2、MVVM的诞生：&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;微软的WPF发布带来了新的技术体验，如Sliverlight、音频、视频、3D、动画……，这导致了软件UI层更加细节化、可定制化。同时，在技术层面，WPF也带来了 诸如Binding、Dependency Property、Routed Events、Command、DataTemplate、ControlTemplate等新特性。MVVM（Model-View-ViewModel）框架的由来便是MVP（Model-View-Presenter）模式与WPF结合的应用方式时发展演变过来的一种新型架构框架。它立足于原有MVP框架并且把WPF的新特性揉合进去，以应对客户日益复杂的需求变化。&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;3、MVVM的简介:&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;MVVM模式是Model-View-ViewMode模式的简称。由视图(View)、视图模型(ViewModel)、模型(Model)三部分组成，结构如下图。通过这三部分实现UI逻辑、呈现逻辑和状态控制、数据与业务逻辑的分离。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/4b7e895c-fe14-49fa-a437-a74a00936316.jpg"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;图1:MVVM模式架构图&lt;/p&gt;&lt;p style="text-align: left;"&gt;使用MVVM模式有几大好处：&lt;/p&gt;&lt;p style="text-align: left;"&gt;1.&amp;nbsp;低耦合。View可以独立于Model变化和修改，一个ViewModel可以绑定到不同的View上，当View变化的时候Model可以不变，当Model变化的时候View也可以不变。&lt;/p&gt;&lt;p style="text-align: left;"&gt;2.&amp;nbsp;可复用性。可以把一些视图的逻辑放在ViewModel里面，让很多View重用这段视图逻辑。&lt;/p&gt;&lt;p style="text-align: left;"&gt;3.&amp;nbsp;独立开发。开发人员可以专注与业务逻辑和数据的开发(ViewModel)。设计人员可以专注于界面(View)的设计。&lt;/p&gt;&lt;p style="text-align: left;"&gt;4.&amp;nbsp;可测试性。可以针对ViewModel来对界面(View)进行测试&lt;/p&gt;&lt;p style="text-align: left;"&gt;&lt;strong&gt;4、M-V-VM的职责:&lt;/strong&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;1. 模型(Model)&lt;/p&gt;&lt;p style="text-align: left;"&gt;Model与MVC模式一样，Model用于封装与应用程序的业务逻辑相关的数据以及对数据的处理方法。它具有对数据直接访问的权利，例如对数据库的访问，Model不依赖于View和ViewModel，也就是说，模型不关心会被如何显示或是如何被操作，模型也不能包含任何用户使用的与界面相关的逻辑。Model在实际开发中根据实际情况可以进行细分。比如在广州市城乡规划资源平台就将Model将Service和Reposiroty结合为WCF服务由ViewModel进行调用。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/75238f8a-cf0b-4fb3-ac51-a74a00936358.jpg"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;图2 Model的细分层次关系&lt;/p&gt;&lt;p style="text-align: left;"&gt;2. 视图(View)&lt;/p&gt;&lt;p style="text-align: left;"&gt;View负责界面展示。它通过DataContext(数据上下文)和ViewModel进行数据绑定，不直接与Model做任何交互。 可以绑定Behavior/Comand/Trigger/Action来调用ViewModel的方法，Command是View到ViewModel的单向通行，通过实现.Net提供的IComand接口来实现绑定，让View触发事件，ViewModel来处理事件，来解决事件绑定功能。&lt;/p&gt;&lt;p style="text-align: left;"&gt;3. 视图模型(ViewModel)&lt;/p&gt;&lt;p style="text-align: left;"&gt;ViewModel主要包括界面逻辑和模型数据封装，Behavior/Comand/Trigger/Action事件响应处理，绑定属性定义和集合等。它是View和Model的桥梁，是对Model的抽象，比如：Model中数据格式是Boolean，可以在ViewModel中转换Model的数据为“开” or “关”供View显示。&lt;/p&gt;&lt;p style="text-align: left;"&gt;实现视图模型需要实现.Net提供的接口INotifyPropertyChanged、INotifyPropertyChanged、INotifyCollectionChanged接口用于实现属性和集合的变更通知。使得在用户在视图上所做的操作都可以实时通知到视图模型，从而让视图模型对象有的模型进行正确的业务操作。&lt;/p&gt;&lt;p style="text-align: left;"&gt;通常情况下在Code-Behind部分可能包含界面逻辑或者应用逻辑的代码，这些代码会很难进行单元测试，应根据具体情况尽量避免。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/86959acd-25db-4e35-b34f-a74a0093639c.jpg"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;图3:View、ViewModel和Model的交互图&lt;/p&gt;&lt;p style="text-align: left;"&gt;对不同View、ViewModel之间的参数传递，一般通过消息实现数据传递，也可以定义全局静态变量来进行数据共享，在MVVM里，我们可以使用Mediator模式(中介者模式)进行跟优雅的处理。可以简单得理解为不同的ViewModel或者View需要进行了操作之后，需要其他ViewModel或者View进行相应的其他操作或者数据更新，而中介类可以准确得将更新准确得通知到正确的ViewModel，同时中介者并不关心ViewModel或者View的任何操作或者数据更新。&lt;/p&gt;&lt;p style="text-align:center"&gt;&lt;img src="http://cdn.huafenfei.com/4be866b0-9b8e-4d6e-ae79-a74a009363cb.jpg"/&gt;&lt;/p&gt;&lt;p style="text-align: left;"&gt;图4 ViewModel通过Mediator模式与其他ViewModel的交互图&lt;/p&gt;&lt;p&gt;&lt;br style="text-align: left;"/&gt;&lt;/p&gt;</content>
+        <tag>MVVM</tag>
+        <pubTime>2014-05-28T04:57:00</pubTime>
+        <breadCrumb title="花纷飞" url="http://www.datiancun.com" />
+        <thumbnail loc="http://cdn.huafenfei.com/3f91ee53-089b-4abc-b94d-a74a0093b628.png" />
+      </display>
+    </data>
+  </url>
+</urlset>

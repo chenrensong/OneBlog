@@ -1,0 +1,48 @@
+// Base
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
+
+html {
+    box-sizing: border-box;
+    font-size: @html-font-size;
+    line-height: @html-line-height;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: @body-bg;
+    color: @body-font-color;
+    font-family: @body-font-family;
+    font-size: @font-size;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+}
+
+a {
+    color: @link-color;
+    outline: none;
+    text-decoration: none;
+    transition: .4s;
+
+    &:focus {
+        .control-shadow();
+    }
+
+    &:focus,
+    &:hover,
+    &:active,
+    &.active {
+        color: @link-color-dark;
+        text-decoration: underline;
+    }
+}
+
+
+.notice-red {
+    border: 1px solid #d00;
+    background: #ffe9e8 !important;
+    color: #d00;
+}

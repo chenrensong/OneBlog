@@ -1,0 +1,6 @@
+﻿   From: {0}
+   Name: {1}
+Subject: {2}
+
+Message:
+{3}

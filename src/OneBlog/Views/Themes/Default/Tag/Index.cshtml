@@ -1,0 +1,19 @@
+﻿@using Microsoft.Extensions.Options
+@using OneBlog.Configuration
+@model IPagedList<PostItem>
+@inject IOptions<AppSettings> AppSettings
+@{
+    ViewBag.Tag = ViewContext.RouteData.Values["tag"];
+
+    ViewBag.Title = $"{ViewBag.Tag}";
+}
+<section class="col-lg-8 blog-content">
+    <div class="content-header">
+        <h2>TAG='@ViewBag.Tag'</h2>
+    </div>
+    <hr>
+
+    @await Html.PartialAsync("_Loop", Model.Items)
+    @await Html.PartialAsync("_Pager")
+</section>
+

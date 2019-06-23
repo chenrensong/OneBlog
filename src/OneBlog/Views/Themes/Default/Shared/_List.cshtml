@@ -1,0 +1,5 @@
+﻿@model IPagedList<PostItem>
+<section class="col-lg-8 blog-content">
+    @await Html.PartialAsync("_Loop", Model.Items)
+    @await Html.PartialAsync("_Pager")
+</section>

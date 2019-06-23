@@ -1,0 +1,28 @@
+﻿@inject OneBlog.Helpers.NavigationHelper NavigationHelper
+@using Microsoft.AspNetCore.Routing
+@{
+    //var ctrl = (string)ViewContext.RouteData.Values["controller"];
+    //var action = (string)ViewContext.RouteData.Values["action"];
+    var menu = NavigationHelper.GetMenu();
+    var isActive = new Func<bool, string>((a) =>
+    {
+        if (a) return "active";
+        return "";
+    });
+
+    var routeData = ViewContext.HttpContext.GetRouteData().Values;
+    var controller = (string)routeData["controller"];
+
+    var isController = new Func<string, string>((a) =>
+    {
+        if (a.Equals(controller, StringComparison.OrdinalIgnoreCase)) return "active";
+        return "";
+    });
+}
+
+<ul class="nav">
+    @foreach (var item in menu)
+    {
+        <li role="presentation" ><a class="@isActive(item.IsActive)" href="@item.Url">@item.Title</a></li>
+    }
+</ul>

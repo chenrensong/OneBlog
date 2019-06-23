@@ -1,0 +1,46 @@
+﻿@using System.Collections.Generic
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Authentication
+@using OneBlog.ViewModels
+@model LoginViewModel
+@inject SignInManager<AppUser> SignInManager
+@{
+    ViewBag.Title = "登录";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+<div class="account-box">
+    <h1 class="account-title">
+        <span>@ViewBag.Title</span>
+    </h1>
+    <div class="account-body">
+        <form id="login-box-login-form" asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewBag.ReturnUrl"
+              method="post" class="form-horizontal" role="form">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="Email"></label>
+                <input asp-for="Email" class="textEntry ltr-dir" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" class="passwordEntry ltr-dir"  />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group with-icon">
+                <span class="icon-form-group">
+                    @Html.CheckBoxFor(m => m.RememberMe)
+                </span>
+                @Html.LabelFor(m => m.RememberMe, new { @class = "label-title" })
+            </div>
+            <input type="submit" value="登录" class="btn btn-default" />
+            <div class="small-link">
+                <a asp-action="ForgotPassword" asp-controller="Account">忘记了密码?</a>
+            </div>
+        </form>
+    </div>
+    <hr />
+    <div id="LoginRegister" class="text-center account-body text-uppercase">
+        还没有账号?
+        <a asp-action="Register" asp-controller="Account">现在创建!</a>
+    </div>
+</div>

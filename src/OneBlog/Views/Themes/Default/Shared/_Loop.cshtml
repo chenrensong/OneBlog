@@ -1,0 +1,47 @@
+﻿@model IList<PostItem>
+
+<div class="posts">
+    @foreach (var story in Model)
+    {
+        <article class="post post-home" id="post0">
+            <div class="post-date-box d-none d-md-block">
+                <h1 class="post-date-day">@story.DatePublished.ToString("dd")</h1>
+                <div class="post-date-month">
+                    @story.DatePublished.ToString("MMMM", new System.Globalization.CultureInfo("en-us")).Substring(0, 3)
+                </div>
+            </div>
+            <header class="post-header">
+
+                <h2 class="post-title"><a class="post-link" href="@Url.Link_Post(story.Id,story.Slug)">@story.Title</a></h2>
+                <div class="post-meta">
+                    <span class="post-author">By @story.Author.DisplayName</span>
+                    <span class="post-date">/ @story.DatePublished.ToString("yyyy-MM-dd")</span>
+                    @if (story.Categories != null)
+                    {
+                        <text>/</text>
+                        <span class="post-category">
+                            @for (int i = 0; i < story.Categories.Count; i++)
+                            {
+                                var cat = story.Categories[i];
+                                <a href="~/category/@cat.Id">@cat.Title</a>
+                                if (i > 0)
+                                {
+                                    <text>,</text>
+                                }
+                            }
+                        </span>
+                    }
+                </div>
+            </header>
+            <section class="post-body">
+                <p>@(story.Content.Length < 280 ? story.Content : story.Content.Substring(0, 280) + "...")</p>
+                @foreach (var tag in story.Tags)
+                {
+                    <a class="post-summary-tag btn btn-sm btn-outline-primary" href="~/tag/@tag.TagName">@tag.TagName</a>
+                }
+            </section>
+        </article>
+    }
+</div>
+
+

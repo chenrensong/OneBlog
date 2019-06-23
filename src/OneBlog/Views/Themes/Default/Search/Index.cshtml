@@ -1,0 +1,58 @@
+﻿@using Microsoft.Extensions.Options
+@using OneBlog.Configuration
+@model IPagedList<PostItem>
+@inject IOptions<AppSettings> AppSettings
+@{
+    ViewBag.Title = $"{ViewBag.Term}";
+}
+<section class="col-lg-8 blog-content content-stlye">
+    <div class="searchpage post search-page page-global">
+        <h2 id="ctl00_cphBody_h1Headline" class="page-global-title">搜索结果： '@ViewBag.Term'</h2>
+        <div id="searchpage" class="search-page-searchbox clearfix">
+            <input type="text" name="term" id="term" value="@ViewBag.Term" onkeypress="if(event.keyCode==13) { SearchPage(); return false; }" />
+            <input type="button" value="搜索" class="btn btn-primary" onclick="SearchPage()" onkeypress="SearchPage()" />
+        </div>
+
+        <script type="text/javascript">
+
+            //<![CDATA[
+            var check = document.getElementById('comment');
+
+            function SearchPage() {
+                var searchTerm = encodeURIComponent(document.getElementById('term').value);
+                var include = check ? check.checked : false;
+                var comment = '&comment=true';
+                if (!include) {
+                    comment = '';
+                }
+                var url = '/search/' + searchTerm + comment;
+                location.href = url;
+            }
+
+            if (check != null) {
+                check.checked = false;
+            }
+
+                                                                                                        //]]>
+        </script>
+
+
+        @if (Model.Items != null)
+        {
+            @foreach (var post in Model.Items)
+            {
+                <div class="searchresult">
+                    <a href="@Url.Link_Post(post.Id, post.Slug)">@post.Title</a>
+                    <span class="text">@(post.Content.Length < 280 ? post.Content : post.Content.Substring(0, 280) + "...")</span>
+                </div>
+
+            }
+        }
+
+
+
+
+        @await Html.PartialAsync("_Pager")
+    </div>
+
+</section>

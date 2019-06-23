@@ -1,0 +1,99 @@
+﻿@model OneBlog.Models.PostDetail
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@{
+    var CurrentUser = await UserManager.GetUserAsync(User);
+    ViewBag.Title = $"{Model.Title}";
+    CategoryItem category = null;
+    if (Model.Categories != null && Model.Categories.Count > 0)
+    {
+        category = Model.Categories.FirstOrDefault();
+    }
+    var CommentCount = 0;
+    if (Model.Comments != null && Model.Comments.Count == 3)
+    {
+        CommentCount = Model.Comments[1].Length;
+    }
+}
+<section class="col-lg-8 blog-content">
+    <article class="post post-single" id="post-@Model.Id">
+        <header class="post-header">
+            <h1 class="post-title">@Model.Title</h1>
+            <div class="post-meta">
+                <span class="post-author">By @Model.Author.DisplayName</span>
+                <span class="post-date">/ @Model.DateCreated</span>
+                @if (Model.Categories != null)
+                {
+                    <text>/</text>
+                    <span class="post-category d-none d-sm-inline">
+                        @for (int i = 0; i < Model.Categories.Count; i++)
+                        {
+                            var cat = Model.Categories[i];
+                            <a href="~/category/@cat.Id">@cat.Title</a>
+                            if (i > 0)
+                            {
+                                <text>,</text>
+                            }
+                        }
+                    </span>
+                }
+            </div>
+        </header>
+        <section class="post-body content-stlye">
+            @Html.Raw(Model.Content)
+        </section>
+        <footer class="post-footer">
+            <div class="post-tags">
+
+                @if (Model.Tags.Count > 0)
+                {
+                    @foreach (var tag in Model.Tags)
+                    {
+                        <a asp-controller="Tag" asp-action="Index" rel="tag" asp-route-tag="@tag.TagName">@tag.TagName</a>
+                    }
+                }
+
+            </div>
+
+        </footer>
+    </article>
+
+
+
+    @*<div id="relatedPosts" class="well-global">
+            <h3 class="well-global-title">相关文章</h3>
+            <ul class="related-posts">
+
+                <li class="related-posts-item">
+                    <a href="/indigo/post/11">A travel photographer's tips on getting the best travel pics</a>
+                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+                </li>
+
+                <li class="related-posts-item">
+                    <a href="/indigo/post/10">What are the dangers of the amazon rain forest</a>
+                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+                </li>
+
+                <li class="related-posts-item">
+                    <a href="/indigo/post/06">The best advanced surfing tips and techniques</a>
+                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+                </li>
+
+            </ul>
+        </div>*@
+
+    @await Component.InvokeAsync("Comment", new { id = Model.Id })
+
+
+    @section Styles {
+        <link href="~/lib/highlight/src/styles/monokai-sublime.css" asp-append-version="true" rel="stylesheet" />
+        <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+    }
+
+    @section Scripts {
+        <script type="text/javascript" src="~/lib/highlight/src/highlight.js"></script>
+        <script type="text/javascript" src="~/lib/lazysizes/lazysizes.min.js" async=""></script>
+        <script type="text/javascript" src="~/lib/ladda/dist/spin.min.js"></script>
+        <script type="text/javascript" src="~/lib/ladda/dist/ladda.min.js"></script>
+    }
+</section>

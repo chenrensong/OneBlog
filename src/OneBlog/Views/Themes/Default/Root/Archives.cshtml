@@ -1,0 +1,29 @@
+﻿@using OneBlog.Models
+@using System.Collections.Generic
+@model List<PostItem>
+        <section class="col-lg-8 blog-content">
+
+            <article class="archives">
+                <header class="archives-header"></header>
+                <section class="archives-content">
+                    <span class="archives-top"></span>
+                    <span class="archives-total">
+                        <strong>目前共计 @Model.Count 篇日志</strong>
+                    </span>
+
+                    @foreach (var item in Model)
+                    {
+                        <div class='archives-item' date="@item.DatePublished.ToString("yyyy")">
+                            <div class='archives-info'>
+                                <div class="archives-info-meta">
+                                    <i class='fa fa-calendar fa-fw' aria-hidden='true'></i>
+                                    <time class="archives-date" datetime="@item.DatePublished.ToString("MM-dd")">@item.DatePublished.ToString("MM-dd")</time>
+                                    <a href='@Url.Link_Post(item.Id,item.Slug)'>@item.Title</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </section>
+            </article>
+        </section>

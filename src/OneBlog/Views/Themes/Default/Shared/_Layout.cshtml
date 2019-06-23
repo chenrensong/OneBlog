@@ -1,0 +1,187 @@
+﻿@using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Routing
+@using OneBlog.Configuration
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject OneBlog.Helpers.NavigationHelper NavigationHelper
+@inject IOptions<AppSettings> AppSettings
+@{
+    var CurrentUser = await UserManager.GetUserAsync(User);
+    var TopTags = await NavigationHelper.GetTopTags();
+    // ViewBag.Title = $"{AppSettings.Value.Title}  - {AppSettings.Value.Description}";
+
+    if (string.IsNullOrEmpty(ViewBag.Title))
+    {
+        ViewBag.Title = $"{AppSettings.Value.Title}";
+    }
+    else
+    {
+        ViewBag.Title = $"{ViewBag.Title} - {AppSettings.Value.Title}";
+    }
+    var logoUrl = "/images/logo.png";
+    var desc = AppSettings.Value.Description;
+
+    if (ViewBag.UserProfile != null)
+    {
+        logoUrl = ViewBag.UserProfile.PhotoUrl;
+        desc = ViewBag.UserProfile.DisplayName;
+        ViewBag.Title = $"{ViewBag.UserProfile.DisplayName} - {AppSettings.Value.Title}";
+    }
+
+    //var ctrl = (string)ViewContext.RouteData.Values["controller"];
+    //var action = (string)ViewContext.RouteData.Values["action"];
+    var menu = NavigationHelper.GetMenu();
+    var isActive = new Func<bool, string>((a) =>
+    {
+        if (a) return "active";
+        return "";
+    });
+
+    var routeData = ViewContext.HttpContext.GetRouteData().Values;
+    var controller = (string)routeData["controller"];
+
+    var isController = new Func<string, string>((a) =>
+    {
+        if (a.Equals(controller, StringComparison.OrdinalIgnoreCase)) return "active";
+        return "";
+    });
+
+    var searchId = Guid.NewGuid();
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="~/css/global.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" rel="stylesheet" />
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+    <link href="~/themes/default/css/style.css" asp-append-version="true" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
+</head>
+<body data-spy="scroll" data-target="#tocScrollspy">
+    <!-- START HEADER -->
+    <header class="blog-header">
+        <div class="container">
+            <nav class="d-flex">
+
+
+                <h1 class="blog-logo my-auto">
+                    <a href="~/" style="color:white">@AppSettings.Value.Title</a>
+                </h1>
+                <ul class="blog-nav ml-lg-auto d-lg-block d-lg-flex my-lg-auto">
+                    <li><a href="~/">首页</a></li>
+                    @if (menu.Count > 0)
+                    {
+                        <li>
+                            <a href="#">分类</a>
+                            <ul>
+                                @foreach (var item in menu)
+                                {
+                                    <li><a class="@isActive(item.IsActive)" href="@item.Url">@item.Title</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    <li><a href="~/archives">归档</a></li>
+                </ul>
+                <button class="blog-nav-toggle hamburger d-block d-lg-none ml-auto my-auto hamburger--squeeze" type="button">
+                    <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </header>
+    <!-- END HEADER -->
+    <!-- START CONTENT -->
+    <div class="container blog-body">
+        <div class="row no-gutters">
+
+            @RenderBody()
+
+            <aside class="col-lg-4 blog-sidebar">
+                <div id="widgetzone_Sidebar" class="widgetzone">
+                    <div class="Widget widget search">
+                        <div class="WidgetContent widget-content">
+                            <div id="searchbox">
+                                <input type="text" id="txt-@searchId" placeholder="搜索..." onkeypress="if (event.keyCode == 13) { BlogEngine.search('/', 'txt-@searchId'); return false; }" />
+                                <input type="button" onkeypress="BlogEngine.search('/', 'txt-@searchId');" onclick="BlogEngine.search('/', 'txt-@searchId');" id="searchbutton" value="Search" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="Widget widget tagcloud">
+                        <h4 class="WidgetHeader widget-header">Tags</h4>
+                        <div class="WidgetContent widget-content">
+                            <ul>
+                                @foreach (var tag in TopTags)
+                                {
+                                    <li><a href="~/tag/@tag.TagName" class="smallest" title="Tag: @tag.TagName">@tag.TagName</a> </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="Widget widget widget-toc">
+                        <h4 class="WidgetHeader widget-header">文章目录</h4>
+                        <div class="WidgetContent widget-content">
+                            <nav id="tocScrollspy">
+                                <ul id="toc" class="toc"></ul>
+                            </nav>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </aside>
+        </div>
+    </div>
+    <!-- END CONTENT -->
+    <!-- START FOOTER -->
+    <footer class="blog-footer">
+        <div class="container">
+            <div class="blog-footer-end d-lg-flex text-center text-lg-left ">
+                <div class="blog-copyright my-lg-auto mb-3 mb-lg-0">
+                    <a class="blog-footer-logo" target="_blank" href="https://github.com/chenrensong/OneBlog">
+                        <img src="~/static/img/logo.png" alt="OneBlog" />
+                    </a>
+                    <p>
+                        <span>&copy; 2018</span>
+                        <span>Powered by <a href="https://github.com/chenrensong/OneBlog" target="_blank" title="OneBlog">OneBlog</a></span>
+                        <a href="http://www.miibeian.gov.cn/" target="_blank">京ICP备14060483号</a>
+                    </p>
+                </div>
+                <ul class="nav blog-social ml-lg-auto justify-content-center">
+                    <li><a data-toggle="tooltip" title="follow on WeiBo" target="_blank" href="https://weibo.com/songsongorg" rel="external nofollow"><i class="fa fa-weibo"></i></a></li>
+                    <li><a data-toggle="tooltip" title="follow on GitHub" target="_blank" href="https://github.com/chenrensong" rel="external nofollow"><i class="fa fa-git"></i></a></li>
+                    <li><a data-toggle="tooltip" title="Back up" id="back-up" target="_blank" href="#"><i class="fa fa-chevron-up"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    <!-- END FOOTER -->
+    @RenderSection("Scripts", required: false)
+
+    <environment names="Development">
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script src="~/js/jquery.toc.js"></script>
+        <script src="~/themes/default/js/app.js"></script>
+    </environment>
+    <environment names="Production,Staging">
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdn.bootcss.com/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script src="~/js/jquery.toc.js"></script>
+        <script src="~/themes/default/js/app.js"></script>
+        @*<script src="~/dist/oneblog.min.js" asp-append-version="true"></script>*@
+    </environment>
+
+</body>
+</html>

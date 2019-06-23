@@ -1,0 +1,177 @@
+﻿@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@model OneBlog.ViewModels.SettingViewModel
+@{
+    ViewBag.Title = "账户设置";
+    var sexList = new List<SelectListItem>
+    {
+        new SelectListItem {Value = "0", Text  = "保密"},
+        new SelectListItem {Value = "1", Text  = "男"},
+        new SelectListItem {Value = "2", Text  = "女"}
+    };
+}
+@section Styles{
+    <link href="~/lib/cropper/dist/cropper.min.css" rel="stylesheet">
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+    <link href="~/css/setting.css" rel="stylesheet" />
+    <link href="~/lib/toastr/toastr.min.css" rel="stylesheet" />
+}
+<div class="container" id="container">
+    <div id="container-inner" class="clearfix">
+        <div id="content-login" class="clearfix">
+            <div class="center-wrapper">
+                <aside class="dashboard">
+                    <div class="user-avatar js-user-avatar-aside">
+                        <img src="@Model.Avatar" height="100" width="100" alt="@Model.DisplayName" />
+                    </div>
+                    <div class="user-info js-user">
+                        <div class="user-name">@Model.DisplayName</div>
+                        <div class="user-identity">
+                            <span class="user-identity-default">@Model.Signature</span>
+                        </div>
+                        <div class="user-tag">花纷飞村民</div>
+                    </div>
+                    <nav>
+                        <ul>
+                            @*<li class=""><a href="#">我的动态</a></li>
+                                <li class=""><a href="#">消息中心</a></li>
+                                <li class=""><a href="#">我的收藏</a></li>*@
+                            <li class="active"><a asp-controller="Account" asp-action="Setting">账户设置</a></li>
+                        </ul>
+                    </nav>
+                </aside>
+                <div class="f-r main">
+                    <h2 class="main-title">
+                        <ul class="main-title-tabs">
+                            <li class="js-tab-setting active">个人设置</li>
+                            <li class="js-tab-setting"><a asp-controller="Account" asp-action="ModifyPassword">修改密码</a></li>
+                        </ul>
+                    </h2>
+                    <div class="account-panels main-container">
+                        <div class="account-panel js-panel-setting active">
+                            <form class="js-account-form" asp-controller="Account" asp-action="Setting" method="POST">
+                                @Html.AntiForgeryToken()
+                                <div class="user-avatar-content">
+                                    <div class="avatar-option-content">
+                                        <div class="avatar-loading js-avatar-loading">
+                                            <div class="avatar-loading-animation">
+                                                <i class="iconfont icon-loading"></i>
+                                            </div>
+                                        </div>
+                                        <div class="user-avatar js-user-avatar">
+                                            <img id="pc-avatar" height="100" width="100" src="@Model.Avatar" alt="@Model.DisplayName" />
+                                        </div>
+                                    </div><div class="choose-image">
+                                        <i class="fa fa-camera"></i><span>   选择图片</span>
+                                        <input id="avatar-fileupload" type="file" class="sr-only select-image-btn js-input-image" accept="image/*" value="">
+                                    </div>
+                                    <p class="photo-tip-txt">选择你喜欢的照片：格式为 JPG, JPEG, GIF 或 PNG。大小不超过 5MB。</p>
+                                </div>
+                                <div class="account-info js-user-info">
+                                    <div class="account-info-item">
+                                        <label><i class="fa fa-envelope-o"></i>邮箱：</label>
+                                        <span class="binding-mail">@Model.Email</span>
+                                    </div>
+                                    <div class="account-info-item">
+                                        <label>
+                                            <i class="fa fa-circle-o"></i> 昵称：
+                                        </label>
+                                        <input asp-for="DisplayName" />
+                                    </div>
+                                    <div class="account-info-item">
+                                        <label>
+                                            <i class="fa fa-plus"></i> 性别：
+                                        </label>
+                                        <select asp-for="Sex" asp-items="@sexList">
+                                        </select>
+                                    </div>
+                                    <div class="account-info-item">
+                                        <label>
+                                            <i class="fa fa-anchor"></i> 年龄：
+                                        </label>
+                                        <input asp-for="Age" />
+                                    </div>
+
+                                    <div class="account-info-item">
+                                        <label>
+                                            <i class="fa fa-coffee"></i>签名：
+                                        </label>
+                                        <input asp-for="Signature" />
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-uc">保存</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="mobile-main mobile-main-account clearfix js-main-account-mobile">
+                    <div class="close-account-box f-r">
+                        <a href="/">
+                            <i class="fa fa-close"></i>
+                        </a>
+                    </div>
+                    <form class="mobile-account-form js-account-form" asp-controller="Account" asp-action="Setting" method="POST">
+                        <legend>修改个人资料</legend>
+                        <div class="mobile-account-info">
+                            <div class="mobile-account-info-item">
+                                <label>更换头像</label>
+                                <input id="avatar-mobile-fileupload" type="file" name="file" class="sr-only select-image-btn js-input-image" accept="image/*" capture="camera" multiple="true" value="">
+                                <span class="avatar-set f-r js-user-avatar-mobile">
+                                    <img id="mobile-avatar" src="@Model.Avatar" />
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mobile-account-info">
+                            <div class="mobile-account-info-item">
+                                <label>昵称</label>
+                                <input asp-for="DisplayName" />
+                            </div>
+                        </div>
+                        <div class="mobile-account-info">
+                            <div class="mobile-account-info-item">
+                                <label>签名</label>
+                                <input asp-for="Signature" />
+                            </div>
+                            <button type="submit" class="btn mobile-btn mobile-btn-save-info btn-success">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="modal-image-cropper" class="modal fade">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="img-container push-down-15">
+                                    <img id="js-avatar-image">
+                                </div>
+                                <div class="modal-buttons">
+                                    <button id="btnPostFile" data-color="green" data-style="expand-left" class="ladda-button btn btn-success">上传头像</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/lib/jquery-form/dist/jquery.form.min.js"></script>
+    <script src="~/lib/cropper/dist/cropper.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/lib/ladda/dist/spin.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.min.js"></script>
+    <script src="~/lib/ladda/dist/ladda.jquery.min.js"></script>
+    <script src="~/js/setting.js" asp-append-version="true"></script>
+}

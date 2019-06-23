@@ -1,0 +1,76 @@
+﻿@using OneBlog.ViewModels;
+@model ExternalLoginConfirmationViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/vendor/bootstrap/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="~/vendor/font-awesome/css/font-awesome.min.css" type="text/css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="~/css/account.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <style>
+        .login-box-image {
+            background-image: url('@Model.Portrait') !important;
+        }
+        .login-box-name {
+            text-align: center;
+            font-size: 16px;
+            display: block;
+            margin-top: -16px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fb-root"></div>
+    <div class="login-box">
+        <div class="login-box-container clearfix">
+            <div class="login-box-loading">
+                <div class="login-box-image"></div>
+            </div>
+            <div class="login-box-login">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <form id="login-box-register-form" asp-controller="Account" asp-action="ExternalLoginConfirmation"
+                      asp-route-returnurl="@ViewData[" ReturnUrl"]" method="post" role="form" class="form-signin">
+
+                    <div class="form-group">
+                        <input type="text" asp-for="NickName" class="form-control" placeholder="昵称" />
+                        <span asp-validation-for="NickName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" asp-for="Email" class="form-control email" placeholder="Email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    @*<div class="form-group">
+                        <input asp-for="Password"  class="form-control" placeholder="密码" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <input asp-for="ConfirmPassword"  class="form-control" placeholder="确认密码" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>*@
+
+                    <button class="btn btn-lg btn-block btn-primary" type="submit">注册</button>
+                </form>
+                <p class="login-box-back"> <a href="#"><i class="icon-arrow-left"></i>返回登录</a> </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="~/vendor/imagesloaded/imagesloaded.pkgd.min.js"></script>
+    <script src="~/vendor/md5/md5.min.js"></script>
+</body>
+</html>
