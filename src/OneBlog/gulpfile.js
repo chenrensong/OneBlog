@@ -76,8 +76,6 @@ gulp.task('build', function () {
 gulp.task('minify', function () {
     var cssLicense = new PreserveLicense();
     gulp.src([
-        './wwwroot/common/css/*.css',
-        './wwwroot/3rdparty/css/sh/*.css',
         './wwwroot//lib/ladda/dist/ladda-themeless.min.css',
         './wwwroot/lib/toastr/toastr.css'
     ])
@@ -107,12 +105,6 @@ gulp.task('minify', function () {
         './wwwroot/common/js/lib/*.js',
         './wwwroot/common/js/init.js',
         './wwwroot/common/js/app/*.js',
-        './wwwroot/3rdparty/js/sh/shCore.js',
-        './wwwroot/3rdparty/js/sh/shBrushCSharp.js',
-        './wwwroot/3rdparty/js/sh/shBrushJScript.js',
-        './wwwroot/3rdparty/js/sh/shBrushXml.js',
-        './wwwroot/3rdparty/js/sh/shBrushCss.js',
-        './wwwroot/3rdparty/js/sh/shBrushSass.js',
         './wwwroot/lib/toastr/toastr.min.js',
         './wwwroot/lib/ladda/dist/*.js',
         './wwwroot/3rdparty/js/syntaxhighlight.js'
