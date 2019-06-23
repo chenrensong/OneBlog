@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneBlog.Helpers", "src\OneB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneBlog.Core", "src\OneBlog.Core\OneBlog.Core.csproj", "{DC8E1BDE-9AFA-43A0-9E6E-A4BB644434D2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{09F38469-1924-4E82-A2E6-95F6ABDA68EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -72,6 +74,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4FB63E39-5177-4332-ACD6-4F0FDBA65D73} = {09F38469-1924-4E82-A2E6-95F6ABDA68EA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A2CF61B-1FE4-4C54-A46B-20B819F2E7BB}

@@ -15,7 +15,6 @@ namespace OneBlog.Data
             return ((int)(totalCount / pageSize)) + ((totalCount % pageSize) > 0 ? 1 : 0);
         }
 
-
         
     }
 }
