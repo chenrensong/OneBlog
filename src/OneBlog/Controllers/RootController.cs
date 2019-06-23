@@ -37,7 +37,7 @@ namespace OneBlog.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IOptions<AppSettings> _appSettings;
-        private INodeServices _nodeService;
+
         private ISession _session => _httpContextAccessor.HttpContext.Session;
         private readonly IUnitOfWork _unitOfWork;
         public RootController(IUnitOfWork unitOfWork, IMailService mailService, UserManager<AppUser> userManager,
@@ -45,13 +45,11 @@ namespace OneBlog.Controllers
                               IMemoryCache memoryCache,
                               IViewRenderService viewRenderService,
                               IOptions<AppSettings> appSettings,
-                              INodeServices nodeService,
                               IPostService postService,
                               ILogger<RootController> logger)
         {
             _postService = postService;
             _unitOfWork = unitOfWork;
-            _nodeService = nodeService;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _viewRenderService = viewRenderService;
