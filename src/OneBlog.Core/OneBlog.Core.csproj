@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OneBlog.Configuration\OneBlog.Configuration.csproj" />
     <ProjectReference Include="..\OneBlog.Data\OneBlog.Data.csproj" />
   </ItemGroup>
 
