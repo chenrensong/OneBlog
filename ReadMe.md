@@ -1,6 +1,6 @@
 
 ## OneBlog 
-	Based on [BlogEngine](https://github.com/rxtur/BlogEngine.NET) Project built with ASP.NET Core 2.2 
+Based on [BlogEngine](https://github.com/rxtur/BlogEngine.NET) Project built with ASP.NET Core 2.2 
 
 ## Environment
   * Visual Studio 2019
