@@ -334,12 +334,12 @@
 
 @if (AppSettings.Value.EditorType == EditorType.Html)
 {
-    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.config.js"></script>
-    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.all.js"></script>
-    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/neditor.service.js"></script>
-    <script type="text/javascript" charset="utf-8" src="~/editors/neditor/i18n/zh-cn/zh-cn.js"></script>
-    <script type="text/javascript" src="~/editors/neditor/third-party/SyntaxHighlighter/shCore.js"></script>
-    <script type="text/javascript" src="~/editors/neditor/third-party/browser-md5-file.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/3rdparty/editors/neditor/neditor.config.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/3rdparty/editors/neditor/neditor.all.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/3rdparty/editors/neditor/neditor.service.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/3rdparty/editors/neditor/i18n/zh-cn/zh-cn.js"></script>
+    <script type="text/javascript" src="~/3rdparty/editors/neditor/third-party/SyntaxHighlighter/shCore.js"></script>
+    <script type="text/javascript" src="~/3rdparty/editors/neditor/third-party/browser-md5-file.min.js"></script>
 
     <script>
         //初始化编辑器
@@ -361,7 +361,7 @@
 }
 else
 {
-    <script type="text/javascript" src="~/editors/simplemde/simplemde.min.js"></script>
+    <script type="text/javascript" src="~/3rdparty/editors/simplemde/simplemde.min.js"></script>
     <script>
         function getEditor() {
             var simplemde = new SimpleMDE({
@@ -431,7 +431,7 @@ else
         }
     </script>
 }
-<script type="text/javascript" charset="utf-8" src="~/editors/editor.js"></script>
+<script type="text/javascript" charset="utf-8" src="~/3rdparty/editors/editor.js"></script>
 
 <script src="~/admin/app/grid-helpers.js"></script>
 <script src="~/admin/app/editor/editor-helpers.js"></script>
@@ -447,11 +447,11 @@ else
     <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
     @if (AppSettings.Value.EditorType == EditorType.Html)
     {
-        <link type="text/css" rel="stylesheet" href="~/editors/neditor/third-party/SyntaxHighlighter/shCoreDefault.css" />
+        <link type="text/css" rel="stylesheet" href="~/3rdparty/editors/neditor/third-party/SyntaxHighlighter/shCoreDefault.css" />
     }
     else
     {
-        <link href="~/editors/simplemde/simplemde.min.css" rel="stylesheet">
+        <link href="~/3rdparty/editors/simplemde/simplemde.min.css" rel="stylesheet">
     }
 }
 
