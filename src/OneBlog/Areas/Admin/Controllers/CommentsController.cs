@@ -27,6 +27,7 @@ namespace OneBlog.Areas.Admin.Controllers
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             var items = new List<CommentItem>();
+            var t = await commentRepository.GetListAsync();
             var query = commentRepository.GetList(
                 include: b => b.Include(a => a.Posts),
                 selector: c => new CommentItem
@@ -39,15 +40,19 @@ namespace OneBlog.Areas.Admin.Controllers
                     DisplayName = c.DisplayName,
                     Email = c.Email,
                     DateCreated = c.CreateDate.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
-                    HasChildren = (commentRepository.Count(m => m.ParentId == c.Id, null) > 0),
-                    Ip = c.Ip
+                    Ip = c.Ip,
+                    RelativeLink= $"/{c.Posts.Id}#id_{c.Id}"
                 })
                 .Skip(skip);
             if (take > 0)
             {
                 query = query.Take(take);
             }
-            var list= await query.ToListAsync();
+            var list = await query.ToListAsync();
+            foreach (var item in list)
+            {
+                item.HasChildren = (commentRepository.Count(m => m.ParentId == item.Id, null) > 0);
+            }
             var commentsResult = new CommentsResult();
             commentsResult.Items = list;
             commentsResult.SelectedItem = new CommentItem();
@@ -78,7 +83,7 @@ namespace OneBlog.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]CommentItem item)
+        public async Task<IActionResult> Post([FromBody] CommentItem item)
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             var postRepository = _unitOfWork.GetRepository<Post>();
@@ -111,7 +116,7 @@ namespace OneBlog.Areas.Admin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody]CommentItem item)
+        public async Task<IActionResult> Put([FromBody] CommentItem item)
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             try
@@ -146,7 +151,7 @@ namespace OneBlog.Areas.Admin.Controllers
 
         [HttpPut]
         [Route("processchecked/{id?}")]
-        public async Task<IActionResult> ProcessChecked([FromBody]List<CategoryItem> items, string id)
+        public async Task<IActionResult> ProcessChecked([FromBody] List<CategoryItem> items, string id)
         {
             if (items == null || items.Count == 0)
             {
@@ -168,7 +173,7 @@ namespace OneBlog.Areas.Admin.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> DeleteAll([FromBody]CommentItem item)
+        public async Task<IActionResult> DeleteAll([FromBody] CommentItem item)
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             var action = ControllerContext.RouteData.Values["id"].ToString().ToLowerInvariant();

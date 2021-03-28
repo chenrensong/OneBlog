@@ -269,7 +269,7 @@ namespace OneBlog.Controllers
             var replyToCommentId = Request.Form["hiddenReplyTo"].ToString();
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             var postRepository = _unitOfWork.GetRepository<Post>();
-            var post = await postRepository.GetFirstOrDefaultAsync(predicate: m => m.Id == model.PostId);
+            var post = await postRepository.GetFirstOrDefaultAsync(predicate: m => m.Id == model.PostId, disableTracking: false);
             var commentItem = new CommentItem() { PostId = model.PostId, DisplayName = model.UserName, Email = model.Email, Content = model.Content };
             if (!string.IsNullOrEmpty(replyToCommentId))
             {

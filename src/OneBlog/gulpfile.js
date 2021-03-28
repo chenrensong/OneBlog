@@ -53,7 +53,7 @@ PreserveLicense.prototype = {
                 self.licenses.push('');
             }
 
-            file.contents = new Buffer(self.licenses.join('\n') + String(file.contents));
+            file.contents = new Buffer.from(self.licenses.join('\n') + String(file.contents));
 
             cb(null, file);
         }
@@ -64,20 +64,21 @@ gulp.task('watch', function () {
     gulp.watch('./ClientApp/**/*.less', ['build', 'minify']);
 });
 
-gulp.task('build', function () {
+gulp.task('build', function (done) {
     gulp.src('./wwwroot/common/less/*.less')
         .pipe(less({
             plugins: [autoprefix]
         }))
         .pipe(csscomb())
         .pipe(gulp.dest('./wwwroot/common/css'));
+    done();
 });
 
-gulp.task('minify', function () {
+gulp.task('minify', function (done) {
     var cssLicense = new PreserveLicense();
     gulp.src([
-        './wwwroot//lib/ladda/dist/ladda-themeless.min.css',
-        './wwwroot/lib/toastr/toastr.css'
+        './node_modules/ladda/dist/ladda-themeless.min.css',
+        './node_modules/toastr/build/toastr.css'
     ])
         .pipe(concat('oneblog.css'))
         .pipe(through.obj(cssLicense.save()))
@@ -102,11 +103,8 @@ gulp.task('minify', function () {
         this.emit('end');
     });
     gulp.src([
-        './wwwroot/common/js/lib/*.js',
-        './wwwroot/common/js/init.js',
-        './wwwroot/common/js/app/*.js',
-        './wwwroot/lib/toastr/toastr.min.js',
-        './wwwroot/lib/ladda/dist/*.js',
+        './node_modules/toastr/build/toastr.min.js',
+        './node_modules/ladda/dist/js/*.js',
         './wwwroot/3rdparty/js/syntaxhighlight.js'
     ])
         .pipe(concat('oneblog.js'))
@@ -117,6 +115,9 @@ gulp.task('minify', function () {
             suffix: '.min'
         }))
         .pipe(gulp.dest(paths.assetsDir));
+    done();
 });
 
-gulp.task('default', ['build', 'minify']);
+gulp.task('default', gulp.series(gulp.parallel('build', 'minify'), function (done) {
+    done();
+}));

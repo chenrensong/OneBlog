@@ -1,16 +1,18 @@
-﻿<div class="content-comments-view" data-ng-controller="CommentListController">
+﻿
+
+<div class="content-comments-view" data-ng-controller="CommentListController">
     <form id="cat-form" action="">
         <div id="modal-comment-edit" class="modal fade">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="focusInput=false"><i class="fa fa-times"></i></button>
-                        <h4 class="modal-title">{{vm.Detail.Title}}</h4>
+                        <h4 class="modal-title">{{vm.Detail.Content}}</h4>
                     </div>
                     <div class="modal-body">
                         <div class="form-horizontal">
-                            <div class="form-group"><span class="col-xs-3">{{lbl.author}}</span><div class="col-xs-9"><span>{{vm.SelectedItem.Author.DisplayName}}</span></div></div>
-                            <div class="form-group"><span class="col-xs-3">{{lbl.email}}</span> <div class="col-xs-9"><span>{{vm.SelectedItem.Author.Email}}</span></div></div>
+                            <div class="form-group"><span class="col-xs-3">{{lbl.author}}</span><div class="col-xs-9"><span>{{vm.SelectedItem.DisplayName}}</span></div></div>
+                            <div class="form-group"><span class="col-xs-3">{{lbl.email}}</span> <div class="col-xs-9"><span>{{vm.SelectedItem.Email}}</span></div></div>
                             <div class="form-group"><span class="col-xs-3">{{lbl.date}}</span> <div class="col-xs-9"><span>{{vm.SelectedItem.DateCreated}}</span></div></div>
                         </div>
                         <div class="comment-view-reply">
@@ -69,16 +71,18 @@
             <tbody>
                 <tr data-ng-repeat="item in pagedItems[currentPage] | orderBy:sortingOrder:reverse">
                     <td class="item-checkbox">
-                        <!--data-ng-disabled="item.HasChildren || item.Email === 'pingback'"--> 
+                        <!--data-ng-disabled="item.HasChildren || item.Email === 'pingback'"-->
                         <input type="checkbox" id="{{item.Id}}" data-ng-model="item.IsChecked" />
                     </td>
-                    <td class="item-avatar"><img ng-src="{{item.Author.Avatar}}" alt="{{item.Author.DisplayName}}" title="{{item.Author.DisplayName}}" /></td>
+                    <td class="item-avatar">
+                        <img width="60" height="60" color="#0D8ABC" avatar="{{item.DisplayName}}" alt="{{item.DisplayName}}" title="{{item.DisplayName}}" />
+                    </td>
                     <td class="item-title">
-                        <a title="click to reply" ng-click="showEditForm(item.Id)" href=""> {{item.Title}}</a>
+                        <a title="click to reply" ng-click="showEditForm(item.Id)" href=""> {{item.Content}}</a>
                         <a title="click to view" class="external-link" target="_blank" href="{{item.RelativeLink}}"> <i class="fa fa-external-link"></i> </a>
                     </td>
                     <td class="item-date" title="{{item.DateCreated}}">{{item.DateCreated.substring(0,10)}}</td>
-                    <td class="item-author"><span>{{item.Author.DisplayName}}</span></td>
+                    <td class="item-author"><span>{{item.DisplayName}}</span></td>
                     <td class="item-status"><input type="checkbox" data-ng-model="item.IsApproved" data-ng-disabled="true"></td>
                     <td class="item-status"><input type="checkbox" data-ng-model="item.IsSpam" data-ng-disabled="true"></td>
                 </tr>
@@ -92,3 +96,4 @@
         </ul>
     </div>
 </div>
+

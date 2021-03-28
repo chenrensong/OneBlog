@@ -107,7 +107,7 @@ namespace OneBlog.Core
                 DatePublished = post.DatePublished,
                 DateCreated = post.DatePublished.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
                 Categories = Parse(categories),
-                Tags = post.Tags.Split(',').Select(m => new TagItem() { TagName = m }).ToList(),
+                Tags = post.Tags.Split(',').Where(m => !string.IsNullOrEmpty(m)).Select(m => new TagItem() { TagName = m }).ToList(),
                 //CommentsCount = commentCount.HasValue ? commentCount.Value : 0,//影响性能
                 //Comments = Parse(post.Id, post.Comments),
                 IsPublished = post.IsPublished,

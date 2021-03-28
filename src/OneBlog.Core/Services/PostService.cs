@@ -185,7 +185,7 @@ namespace OneBlog.Core.Services
                     return false;
                 }
                 var uniqueTags = postDetail.Tags.Distinct(new TagItemCompare());
-                var tags = string.Join(",", uniqueTags);
+                var tags = string.Join(",", uniqueTags.Select(m => m.TagName));
                 var covers = new List<string> { postDetail.Cover1, postDetail.Cover2, postDetail.Cover3 }
                 .Where(m => !string.IsNullOrEmpty(m)).ToList();
                 var coversJson = Newtonsoft.Json.JsonConvert.SerializeObject(covers);

@@ -11,7 +11,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <title>@AppSettings.Value.Title - (@CurrentUser.DisplayName)</title>
-    <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <link href="~/css/roboto.css" rel="stylesheet">
     <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
     <link href="~/css/star-rating.css" rel="stylesheet" />
@@ -41,7 +41,8 @@
     <script type="text/javascript" src="~/admin/app/resource.js"></script>
     <div class="main-wrapper">
         <div class="main-sidebar">
-            @{await Html.RenderPartialAsync("_Sidebar");}
+            @{
+                await Html.RenderPartialAsync("_Sidebar");}
         </div>
         <div class="main-content">
             @RenderBody()
@@ -90,6 +91,7 @@
     <script src="~/admin/app/settings/tools/toolController.js"></script>
     <script src="~/admin/app/settings/controls/blogrollController.js"></script>
     <script src="~/admin/app/settings/controls/pingController.js"></script>
+    <script src="~/js/letterAvatar.js"></script>
 
 
 

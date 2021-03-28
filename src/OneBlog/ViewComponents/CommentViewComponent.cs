@@ -37,7 +37,7 @@ namespace OneBlog.ViewComponents
                     DisplayName = c.DisplayName,
                     Email = c.Email,
                     DateCreated = c.CreateDate.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
-                    HasChildren = (commentRepository.Count(m => m.ParentId == c.Id, null) > 0),
+                    //HasChildren = (commentRepository.Count(m => m.ParentId == c.Id, null) > 0),
                     Ip = c.Ip
                 });
 

@@ -1,6 +1,7 @@
 ﻿@model Microsoft.EntityFrameworkCore.IPagedList
 @{
     var windowSize = 4;
+    var pageIndex = Model.PageIndex < 1 ? 1 : Model.PageIndex;
     var firstPage = Model.PageIndex - windowSize < 1 ? 1 : Model.PageIndex - windowSize;
     var lastPage = Model.PageIndex + windowSize > Model.TotalPages ? Model.TotalPages : Model.PageIndex + windowSize;
 }
@@ -9,7 +10,7 @@
     @if (Model.TotalPages != 0)
     {
         <ul id="PostPager">
-            @if (Model.PageIndex != 1)
+            @if (pageIndex != 1)
             {
                 <li class="PagerLink">
                     <a asp-controller="@ViewBag.ControllerName" asp-action="Pager" asp-route-id="@ViewBag.Id" asp-route-page="1" aria-label="首页">首页</a>
@@ -21,20 +22,20 @@
                     <a asp-controller="@ViewBag.ControllerName" asp-action="Pager" asp-route-id="@ViewBag.Id" asp-route-page="@(firstPage - 1)" aria-label="上一页">&larr; 上一页</a>
                 </li>
             }
-            @for (int x = firstPage; x < Model.PageIndex; ++x)
+            @for (int x = firstPage; x < pageIndex; ++x)
             {
                 <li class="PagerLink">
                     <a asp-controller="@ViewBag.ControllerName" asp-action="Pager" asp-route-id="@ViewBag.Id" asp-route-page="@x">@x</a>
                 </li>
             }
-            <li class="PagerLinkCurrent">@Model.PageIndex</li>
-            @for (int x = Model.PageIndex + 1; x <= lastPage; ++x)
+            <li class="PagerLinkCurrent">@pageIndex</li>
+            @for (int x = pageIndex + 1; x <= lastPage; ++x)
             {
                 <li class="PagerLink">
                     <a asp-controller="@ViewBag.ControllerName" asp-action="Pager" asp-route-id="@ViewBag.Id" asp-route-page="@x">@x</a>
                 </li>
             }
-            @if (Model.PageIndex < Model.TotalPages)
+            @if (pageIndex < Model.TotalPages)
             {
                 <li class="PagerLink">
                     <a aria-label="下一页" asp-controller="@ViewBag.ControllerName" asp-action="Pager" asp-route-id="@ViewBag.Id" asp-route-page="@(lastPage + 1)">下一页&rarr;</a>

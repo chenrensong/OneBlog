@@ -58,27 +58,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="~/css/global.css" rel="stylesheet" type="text/css" />
-    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" rel="stylesheet" />
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
     <link href="~/themes/default/css/style.css" asp-append-version="true" rel="stylesheet" />
     @RenderSection("Styles", required: false)
 </head>
 <body data-spy="scroll" data-target="#tocScrollspy">
-    <!-- START HEADER -->
     <header class="blog-header">
         <div class="container">
             <nav class="d-flex">
-
-
                 <h1 class="blog-logo my-auto">
                     <a href="~/" style="color:white">@AppSettings.Value.Title</a>
                 </h1>
                 <ul class="blog-nav ml-lg-auto d-lg-block d-lg-flex my-lg-auto">
-                    <li><a href="~/">首页</a></li>
+                    <li><a href="~/"><i class="fa fa-window-restore icon" aria-hidden="true"></i>首页</a></li>
                     @if (menu.Count > 0)
                     {
                         <li>
-                            <a href="#">分类</a>
+
+                            <a href="#"><i class="fa fa-book icon" aria-hidden="true"></i>分类</a>
                             <ul>
                                 @foreach (var item in menu)
                                 {
@@ -87,7 +85,7 @@
                             </ul>
                         </li>
                     }
-                    <li><a href="~/archives">归档</a></li>
+                    <li><a href="~/archives"><i class="fa fa-archive icon" aria-hidden="true"></i>归档</a></li>
                 </ul>
                 <button class="blog-nav-toggle hamburger d-block d-lg-none ml-auto my-auto hamburger--squeeze" type="button">
                     <span class="hamburger-box">
@@ -97,8 +95,6 @@
             </nav>
         </div>
     </header>
-    <!-- END HEADER -->
-    <!-- START CONTENT -->
     <div class="container blog-body">
         <div class="row no-gutters">
 
@@ -126,7 +122,7 @@
                         </div>
                     </div>
 
-                    <div class="Widget widget widget-toc">
+                    <div class="Widget widget widget-toc" style="display:none">
                         <h4 class="WidgetHeader widget-header">文章目录</h4>
                         <div class="WidgetContent widget-content">
                             <nav id="tocScrollspy">
@@ -135,14 +131,10 @@
                         </div>
                     </div>
 
-
-
                 </div>
             </aside>
         </div>
     </div>
-    <!-- END CONTENT -->
-    <!-- START FOOTER -->
     <footer class="blog-footer">
         <div class="container">
             <div class="blog-footer-end d-lg-flex text-center text-lg-left ">
@@ -164,15 +156,13 @@
             </div>
         </div>
     </footer>
-    <!-- END FOOTER -->
-    @RenderSection("Scripts", required: false)
-
     <environment names="Development">
         <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdn.bootcss.com/popper.js/1.14.3/umd/popper.min.js"></script>
         <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
         <script src="~/js/jquery.toc.js"></script>
         <script src="~/themes/default/js/app.js"></script>
+        <script src="~/js/letterAvatar.js"></script>
     </environment>
     <environment names="Production,Staging">
         <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
@@ -180,8 +170,10 @@
         <script src="https://cdn.bootcss.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
         <script src="~/js/jquery.toc.js"></script>
         <script src="~/themes/default/js/app.js"></script>
+        <script src="~/js/letterAvatar.js"></script>
         @*<script src="~/dist/oneblog.min.js" asp-append-version="true"></script>*@
     </environment>
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>

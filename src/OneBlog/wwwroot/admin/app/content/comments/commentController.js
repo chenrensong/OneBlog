@@ -25,6 +25,10 @@
                 $scope.gridFilter('IsSpam', true, 'spm');
             }
             spinOff();
+            setTimeout(function () {
+                window.LetterAvatar.transform();
+            }, 1);
+
         })
         .error(function (data) {
             toastr.error($rootScope.lbl.failed);

@@ -61,39 +61,44 @@
 
 
     @*<div id="relatedPosts" class="well-global">
-            <h3 class="well-global-title">相关文章</h3>
-            <ul class="related-posts">
+        <h3 class="well-global-title">相关文章</h3>
+        <ul class="related-posts">
 
-                <li class="related-posts-item">
-                    <a href="/indigo/post/11">A travel photographer's tips on getting the best travel pics</a>
-                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
-                </li>
+        <li class="related-posts-item">
+        <a href="/indigo/post/11">A travel photographer's tips on getting the best travel pics</a>
+        <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+        </li>
 
-                <li class="related-posts-item">
-                    <a href="/indigo/post/10">What are the dangers of the amazon rain forest</a>
-                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
-                </li>
+        <li class="related-posts-item">
+        <a href="/indigo/post/10">What are the dangers of the amazon rain forest</a>
+        <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+        </li>
 
-                <li class="related-posts-item">
-                    <a href="/indigo/post/06">The best advanced surfing tips and techniques</a>
-                    <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
-                </li>
+        <li class="related-posts-item">
+        <a href="/indigo/post/06">The best advanced surfing tips and techniques</a>
+        <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec rutrum libero vel orci sagittis portt</span>
+        </li>
 
-            </ul>
+        </ul>
         </div>*@
 
     @await Component.InvokeAsync("Comment", new { id = Model.Id })
 
 
     @section Styles {
-        <link href="~/lib/highlight/src/styles/monokai-sublime.css" asp-append-version="true" rel="stylesheet" />
-        <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+    <link href="~/lib/highlight/styles/monokai-sublime.css" asp-append-version="true" rel="stylesheet" />
+    <link href="~/lib/ladda/dist/ladda-themeless.min.css" rel="stylesheet">
+    <style>
+        .widget-toc{
+                    display:block!important;
+                }
+    </style>
     }
 
     @section Scripts {
-        <script type="text/javascript" src="~/lib/highlight/src/highlight.js"></script>
-        <script type="text/javascript" src="~/lib/lazysizes/lazysizes.min.js" async=""></script>
-        <script type="text/javascript" src="~/lib/ladda/dist/spin.min.js"></script>
-        <script type="text/javascript" src="~/lib/ladda/dist/ladda.min.js"></script>
+    <script type="text/javascript" src="~/lib/highlight/lib/highlight.js"></script>
+    <script type="text/javascript" src="~/lib/lazysizes/lazysizes.min.js" async=""></script>
+    <script type="text/javascript" src="~/lib/ladda/dist/spin.min.js"></script>
+    <script type="text/javascript" src="~/lib/ladda/dist/ladda.min.js"></script>
     }
 </section>

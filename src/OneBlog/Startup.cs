@@ -94,7 +94,8 @@ namespace OneBlog
                 svcs.AddTransient<IMailService, MailService>();
             }
 
-            svcs.AddDbContext<AppDbContext>(ServiceLifetime.Scoped);
+            svcs.AddDbContext<AppDbContext>(ServiceLifetime.Transient)
+                .AddUnitOfWork<AppDbContext>();
 
             svcs.AddIdentity<AppUser, IdentityRole>(options =>
             {
@@ -117,7 +118,6 @@ namespace OneBlog
             });
 
 
-            svcs.AddUnitOfWork<AppDbContext>();
 
             svcs.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
             svcs.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

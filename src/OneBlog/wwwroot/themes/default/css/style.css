@@ -28,7 +28,9 @@ a {
     }
 
 body {
-    font-family: "Roboto",sans-serif;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft YaHei";
+    font-weight: 400;
+    line-height: 1.5;
     cursor: default
 }
 
@@ -43,6 +45,13 @@ body {
 .container {
     width: 100%;
     /*max-width: 80rem*/
+}
+
+.post-body p {
+    font-size: .95rem;
+    line-height: 1.6rem;
+    margin-bottom: 15px;
+    word-wrap: break-word;
 }
 
 @media screen and (max-width: 991px) {
@@ -79,7 +88,9 @@ body {
 }
 
 .blog-header .blog-logo {
-    display: block
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 600;
 }
 
     .blog-header .blog-logo img {
@@ -92,9 +103,25 @@ body {
     padding: 0
 }
 
+    .blog-nav .fa {
+        color: white;
+        opacity: 0.85;
+    }
+
+    .blog-nav .icon {
+        color: #fff;
+        top: 0;
+        right: 0;
+        font-size: .625rem;
+        line-height: 1.75rem;
+        padding-right: 0.2rem;
+        padding-top: 0.2rem;
+        /* display: block; */
+    }
+
     .blog-nav > li {
         position: relative;
-        margin-left: 2rem
+        margin-left: 2rem;
     }
 
         .blog-nav > li > a {
@@ -102,7 +129,7 @@ body {
             color: #fff;
             opacity: .85;
             text-transform: uppercase;
-            font-size: .875rem;
+            font-size: .9rem;
             font-weight: 500;
             text-decoration: none;
             line-height: 2rem
@@ -113,6 +140,7 @@ body {
             opacity: 1;
             cursor: pointer
         }
+
 
     .blog-nav .nav-item-toggle {
         color: #fff;
@@ -185,17 +213,21 @@ body {
     }
 
         .blog-nav > li {
-            margin: 0;
-            border-bottom: 1px solid #222
+            margin: 1rem;
+            border-bottom: 1px solid #222;
         }
 
             .blog-nav > li > a {
-                padding: .5rem 1rem
+           
             }
 
-            .blog-nav > li:last-child {
-                border: 0
-            }
+        .blog-nav .icon {
+            padding-left: 0.5rem;
+        }
+
+        .blog-nav > li:last-child {
+            border: 0
+        }
 
         .blog-nav .has-ul:hover ul {
             top: 0
@@ -204,8 +236,8 @@ body {
         .blog-nav .nav-item-toggle {
             width: 4rem;
             text-align: center;
-            height: 3rem;
-            line-height: 3rem
+            /*height: 3rem;*/
+            /*line-height: 3rem*/
         }
 
             .blog-nav .nav-item-toggle.is-active {
@@ -3028,11 +3060,10 @@ body {
 
 .user-avatar-char {
     position: absolute;
-    left: -3.5rem;
+    left: 0;
     top: 0;
     width: 3rem;
     height: 3rem;
-    background-color: #804998;
     color: #fff;
     font-size: 2rem;
     font-weight: 100;
@@ -3049,7 +3080,7 @@ body {
 }
 
     .archives .archives-header {
-        margin-top: 40px;
+        margin-top: 0px;
     }
 
     .archives .archives-content::before, .archives .archives-content::after {
@@ -3176,7 +3207,7 @@ body {
 
 .toc {
     padding-bottom: 10px;
-    overflow-y: auto;
+    /*overflow-y: auto;*/
 }
 
     .toc a {

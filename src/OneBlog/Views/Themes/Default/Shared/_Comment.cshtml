@@ -1,68 +1,59 @@
 ﻿@model CommentItem
 @{
     ViewBag.Replies = Model.Comments.Count > 0 ? "display:block;" : "display:none;";
-
-    if (string.IsNullOrEmpty(Model.DisplayName))
-    {
-        ViewBag.Avatar = "X";
-    }
-    else
-    {
-        ViewBag.Avatar = Model.DisplayName.Substring(0, 1);
-    }
 }
 
 
 @*<ul id="id_b79e042a-be0f-4d4d-8783-6b8d8b1d769a">
     <li class="comment-item">
-        <div class="comment-content ">
-            <div class="user-avatar-char">
-                W
-            </div>
-            <div class="comment-author">
-                <a class="fn">点点点点点点</a>
-            </div>
-            <div class="comment-text">
-                sssssssss
-            </div>
-            <div class="comment-replylink">
-                <span>26 八月 2018</span> - <a id="reply-b79e042a-be0f-4d4d-8783-6b8d8b1d769a" href="javascript:void(0);" onclick="BlogEngine.replyToComment('b79e042a-be0f-4d4d-8783-6b8d8b1d769a');" class="reply">回复</a>
-            </div>
-            <div class="comment-adminlinks">
-            </div>
-        </div>
-        <div id="replies_b79e042a-be0f-4d4d-8783-6b8d8b1d769a">
-            <ul id="id_b79e042a-be0f-4d4d-8783-6b8d8b1d7691">
-                <li class="comment-item">
-                    <div class="comment-content ">
-                        <div class="user-avatar-char">
-                            W
-                        </div>
-                        <div class="comment-author">
-                            <a class="fn">点点点点点点</a>
-                        </div>
-                        <div class="comment-text">
-                            sssssssss
-                        </div>
-                        <div class="comment-replylink">
-                            <span>26 八月 2018</span> - <a id="reply-b79e042a-be0f-4d4d-8783-6b8d8b1d7691" href="javascript:void(0);" onclick="BlogEngine.replyToComment('b79e042a-be0f-4d4d-8783-6b8d8b1d7691');" class="reply">回复</a>
-                        </div>
-                        <div class="comment-adminlinks">
+    <div class="comment-content ">
+    <div class="user-avatar-char">
+    W
+    </div>
+    <div class="comment-author">
+    <a class="fn">点点点点点点</a>
+    </div>
+    <div class="comment-text">
+    sssssssss
+    </div>
+    <div class="comment-replylink">
+    <span>26 八月 2018</span> - <a id="reply-b79e042a-be0f-4d4d-8783-6b8d8b1d769a" href="javascript:void(0);" onclick="BlogEngine.replyToComment('b79e042a-be0f-4d4d-8783-6b8d8b1d769a');" class="reply">回复</a>
+    </div>
+    <div class="comment-adminlinks">
+    </div>
+    </div>
+    <div id="replies_b79e042a-be0f-4d4d-8783-6b8d8b1d769a">
+    <ul id="id_b79e042a-be0f-4d4d-8783-6b8d8b1d7691">
+    <li class="comment-item">
+    <div class="comment-content ">
+    <div class="user-avatar-char">
+    W
+    </div>
+    <div class="comment-author">
+    <a class="fn">点点点点点点</a>
+    </div>
+    <div class="comment-text">
+    sssssssss
+    </div>
+    <div class="comment-replylink">
+    <span>26 八月 2018</span> - <a id="reply-b79e042a-be0f-4d4d-8783-6b8d8b1d7691" href="javascript:void(0);" onclick="BlogEngine.replyToComment('b79e042a-be0f-4d4d-8783-6b8d8b1d7691');" class="reply">回复</a>
+    </div>
+    <div class="comment-adminlinks">
 
-                        </div>
-                    </div>
-                </li>
-            </ul>
-
-        </div>
+    </div>
+    </div>
     </li>
-</ul>*@
+    </ul>
+
+    </div>
+    </li>
+    </ul>*@
 
 <ul id="id_@Model.Id">
     <li class="comment-item">
         <div class="comment-content ">
             <div class="user-avatar-char">
-                @ViewBag.Avatar
+                <img width="60" height="60" color="#0D8ABC" avatar="@Model.DisplayName" alt="@Model.DisplayName" title="@Model.DisplayName" />
             </div>
             <div class="comment-author">
                 <a class="fn">@Model.DisplayName</a>
@@ -74,7 +65,6 @@
                 <span>@Model.DateCreated</span> - <a id="reply-@Model.Id" href="javascript:void(0);" onclick="BlogEngine.replyToComment('@Model.Id');" class="reply">回复</a>
             </div>
             <div class="comment-adminlinks">
-
             </div>
         </div>
         <div id="replies_@Model.Id" style="@ViewBag.Replies">

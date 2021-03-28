@@ -56,6 +56,8 @@ namespace OneBlog.Models
         /// 用户Ip数据
         /// </summary>
         public string Ip { get; set; }
+
+        public string RelativeLink { get; set; }
         /// <summary>
         /// The comments.
         /// </summary>

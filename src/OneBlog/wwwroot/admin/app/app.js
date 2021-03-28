@@ -1,7 +1,7 @@
 ﻿(function () {
     var app = angular.module("blogAdmin", ['ngRoute', 'ngSanitize', 'tm.pagination']);
-
     var config = ["$routeProvider", function ($routeProvider) {
+        app.registerCtrl = $routeProvider.register;
         $routeProvider
         .when("/", { templateUrl: "/admin/app/dashboard/dashboardView.html" })
         .when("/content/posts", { templateUrl: "/admin/app/content/posts/postView.html" })
@@ -33,9 +33,12 @@
         .when("/settings/tools", { templateUrl: "/admin/app/settings/tools/checkView.html" })
 
         .otherwise({ redirectTo: "/" });
+
+      
     }];
     app.config(config);
 
+   
     app.directive('focusMe', ['$timeout', function ($timeout) {
         return function (scope, element, attrs) {
             scope.$watch(attrs.focusMe, function (value) {
@@ -47,8 +50,6 @@
             });
         };
     }]);
-
-
 
 
     app.directive('angularTooltip', function () {

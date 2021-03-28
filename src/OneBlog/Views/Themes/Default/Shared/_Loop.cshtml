@@ -4,7 +4,7 @@
     @foreach (var story in Model)
     {
         <article class="post post-home" id="post0">
-            <div class="post-date-box d-none d-md-block">
+            <div class="post-date-box d-none d-lg-block">
                 <h1 class="post-date-day">@story.DatePublished.ToString("dd")</h1>
                 <div class="post-date-month">
                     @story.DatePublished.ToString("MMMM", new System.Globalization.CultureInfo("en-us")).Substring(0, 3)
@@ -34,7 +34,7 @@
                 </div>
             </header>
             <section class="post-body">
-                <p>@(story.Content.Length < 280 ? story.Content : story.Content.Substring(0, 280) + "...")</p>
+                <p>@(CommonHelper.GetDescription(story))</p>
                 @foreach (var tag in story.Tags)
                 {
                     <a class="post-summary-tag btn btn-sm btn-outline-primary" href="~/tag/@tag.TagName">@tag.TagName</a>
