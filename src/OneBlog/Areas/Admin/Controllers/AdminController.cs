@@ -19,9 +19,9 @@ namespace OneBlog.Areas.Admin.Controllers
     public class AdminController : Controller
     {
         private readonly IOptions<AppSettings> _appSettings;
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
 
-        public AdminController(IHostingEnvironment env, IOptions<AppSettings> appSettings)
+        public AdminController(IWebHostEnvironment env, IOptions<AppSettings> appSettings)
         {
             _appSettings = appSettings;
             _env = env;

@@ -1,7 +1,7 @@
 ﻿
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
-@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment env
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
 
 @{
     var CurrentUser = await UserManager.GetUserAsync(User);

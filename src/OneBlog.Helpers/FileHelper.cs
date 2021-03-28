@@ -9,7 +9,7 @@ namespace OneBlog.Helpers
     {
         private static string DirectorySeparatorChar = Path.DirectorySeparatorChar.ToString();
 
-        private static string _ContentRootPath = IocContainer.Get<IHostingEnvironment>().ContentRootPath;
+        private static string _ContentRootPath = IocContainer.Get<IWebHostEnvironment>().ContentRootPath;
 
         /// <summary>
         　　/// 获取文件绝对路径

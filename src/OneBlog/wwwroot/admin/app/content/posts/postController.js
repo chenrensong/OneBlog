@@ -5,16 +5,6 @@
     $scope.reverse = true;
 
 
-    $scope.paginationConf = {
-        currentPage: 1, // 当前页数
-        totalItems: 0, // 一共多少条数据，和itemsPerPage决定一共会有几页
-        itemsPerPage: 15, // 每页几条数据，和totalItems决定一共会有几页
-        pagesLength: 1,
-        onChange: function () {
-            $scope.load($scope.paginationConf.currentPage);
-        }
-    };
-
     $scope.load = function (index) {
         var url = '/api/posts';
         spinOn();
@@ -22,11 +12,7 @@
         var p = { take: perPage, skip: perPage * (index - 1) }
         dataService.getItems(url, p)
             .success(function (data) {
-                angular.copy(data.Items, $scope.items);
-                $scope.paginationConf.currentPage = data.PageIndex;
-                $scope.paginationConf.totalItems = data.TotalCount;
-                $scope.paginationConf.itemsPerPage = data.PageSize;
-                $scope.paginationConf.pagesLength = data.TotalPages;
+                angular.copy(data, $scope.items);
                 gridInit($scope, $filter);
                 if ($scope.filter) {
                     $scope.setFilter($scope.filter);
@@ -39,6 +25,7 @@
             });
     };
 
+    $scope.load();
 
     $scope.processChecked = function (action, itemsChecked) {
         if (itemsChecked) {

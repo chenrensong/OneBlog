@@ -16,11 +16,11 @@ namespace OneBlog.Areas.Admin.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private readonly IUsersRepository repository;
         private readonly UserManager<AppUser> _userManager;
 
-        public UsersController(UserManager<AppUser> userManager, IUsersRepository repository, IHostingEnvironment env)
+        public UsersController(UserManager<AppUser> userManager, IUsersRepository repository, IWebHostEnvironment env)
         {
             _userManager = userManager;
             _env = env;
@@ -44,7 +44,7 @@ namespace OneBlog.Areas.Admin.Controllers
             return Ok();
         }
         [HttpPost]
-        public IActionResult Post([FromBody]UserItem item)
+        public IActionResult Post([FromBody] UserItem item)
         {
             var result = repository.Add(item);
             if (result == null)
@@ -54,7 +54,7 @@ namespace OneBlog.Areas.Admin.Controllers
             return Ok();
         }
         [HttpPut]
-        public IActionResult Update([FromBody]UserItem item)
+        public IActionResult Update([FromBody] UserItem item)
         {
             repository.Update(item);
             return Ok();
@@ -75,7 +75,7 @@ namespace OneBlog.Areas.Admin.Controllers
             var user = await _userManager.GetUserAsync(HttpContext.User);
             if (user != null)
             {
-                user.Avatar = AvatarHelper.GetRandomAvatar();
+                user.Avatar = $"/account/avatar/{SS.Toolkit.Helpers.SecurityHelper.MD5(username)}";
                 await _userManager.UpdateAsync(user);
             }
             return Ok(user.Avatar);
@@ -96,7 +96,7 @@ namespace OneBlog.Areas.Admin.Controllers
 
         [HttpPut]
         [Route("saveprofile")]
-        public IActionResult SaveProfile([FromBody]UserItem item)
+        public IActionResult SaveProfile([FromBody] UserItem item)
         {
             repository.SaveProfile(item);
             return Ok();
@@ -104,7 +104,7 @@ namespace OneBlog.Areas.Admin.Controllers
 
         [HttpPut]
         [Route("processchecked/delete")]
-        public IActionResult ProcessChecked([FromBody]IList<UserItem> items)
+        public IActionResult ProcessChecked([FromBody] IList<UserItem> items)
         {
             if (items == null || items.Count == 0)
             {

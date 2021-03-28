@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.WebEncoders;
@@ -22,7 +22,6 @@ using OneBlog.Data;
 using OneBlog.Data.Common;
 using OneBlog.Data.Contracts;
 using OneBlog.Helpers;
-using OneBlog.Logger;
 using OneBlog.Mvc;
 using OneBlog.Services;
 using System;
@@ -36,16 +35,14 @@ namespace OneBlog
     public class Startup
     {
 
-        private IHostingEnvironment _env { get; }
         private IConfiguration _conf { get; }
 
 
-        public Startup(IHostingEnvironment env, IConfiguration conf)
+        public Startup(IConfiguration conf)
         {
             //中文支持
             EncodingProvider provider = CodePagesEncodingProvider.Instance;
             Encoding.RegisterProvider(provider);
-            _env = env;
             _conf = conf;
         }
 
@@ -63,13 +60,13 @@ namespace OneBlog
                 new DataBaseConnection() { ConnectionString = connectionString, DataBaseType = dbProviderType }
             , ServiceLifetime.Transient);
 
-         //   svcs.AddEntityFrameworkSqlite()
-         //.AddDbContext<AppDbContext>(options =>
-         //{
-         //    options.UseSqlite(connectionString);
-         //    //options.UseMySqlLolita();
-         //}, ServiceLifetime.Transient)
-         //.AddUnitOfWork<AppDbContext>();
+            //   svcs.AddEntityFrameworkSqlite()
+            //.AddDbContext<AppDbContext>(options =>
+            //{
+            //    options.UseSqlite(connectionString);
+            //    //options.UseMySqlLolita();
+            //}, ServiceLifetime.Transient)
+            //.AddUnitOfWork<AppDbContext>();
 
             svcs.AddUEditorServices(UploadProvider.Bos);
             svcs.AddSession();
@@ -93,15 +90,7 @@ namespace OneBlog
                 x.MultipartHeadersLengthLimit = int.MaxValue;
             });
 
-            if (_env.IsDevelopment())
-            {
-                svcs.AddTransient<IMailService, LoggingMailService>();
-            }
-            else
-            {
-                svcs.AddTransient<IMailService, MailService>();
-            }
-
+            svcs.AddTransient<IMailService, MailService>();
 
             svcs.AddIdentity<AppUser, IdentityRole>(options =>
             {
@@ -122,7 +111,6 @@ namespace OneBlog
             {
                 options.ViewLocationExpanders.Add(new ThemeViewLocationExpander());
             });
-
 
 
             svcs.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
@@ -150,23 +138,13 @@ namespace OneBlog
             svcs.AddMemoryCache(opt => opt.ExpirationScanFrequency = TimeSpan.FromMinutes(5));
 
             svcs.AddRazorPages();
-            svcs.AddControllers().AddJsonOptions(o=>
+            svcs.AddControllers().AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.PropertyNamingPolicy = null;
                 o.JsonSerializerOptions.DictionaryKeyPolicy = null;
                 o.JsonSerializerOptions.PropertyNameCaseInsensitive = false;
             });
-            //// Add MVC to the container
-            //var mvcBuilder = svcs.AddMvc();
-            //mvcBuilder.AddJsonOptions(r =>
-            //{
-            //    //r.JsonSerializerOptions.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
-            //    //     r.JsonSerializerOptions.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
-            //});
-            ////var mvcCore = svcs.AddMvcCore();
-            ////mvcBuilder.AddJsonOptions(opts => opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
-            ////mvcCore.AddJsonFormatters(options => options.ContractResolver = new CamelCasePropertyNamesContractResolver());
-            //// Add Https - renable once Azure Certs work
+
             //if (_env.IsProduction())
             //{
             //    mvcBuilder.AddMvcOptions(options => options.Filters.Add(new RequireOnlyDoaminAttribute() { Host = "dahuangshu.com" }));
@@ -178,15 +156,13 @@ namespace OneBlog
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
-                              ILoggerFactory loggerFactory,
-                              IMailService mailService,
-                              IServiceScopeFactory scopeFactory, IOptions<AppSettings> appSettings)
+                              IServiceScopeFactory scopeFactory, IOptions<AppSettings> appSettings, IWebHostEnvironment env)
         {
 
             app.UseResponseCompression();
             app.UseSession();
             // Add the following to the request pipeline only in development environment.
-            if (_env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 //loggerFactory.AddDebug(LogLevel.Information);
                 app.UseDeveloperExceptionPage();
@@ -194,10 +170,6 @@ namespace OneBlog
             }
             else
             {
-                // Support logging to email
-                //loggerFactory.AddEmail(mailService, LogLevel.Critical);
-                //loggerFactory.AddConsole(LogLevel.Error);
-
                 // Early so we can catch the StatusCode error
                 app.UseStatusCodePagesWithReExecute("/Error/{0}");
                 app.UseExceptionHandler("/Exception");
@@ -210,16 +182,20 @@ namespace OneBlog
             app.UseMiddleware<ActiveUsersMiddleware>();
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 //endpoints.MapControllerRoute(
                 //        name: "default",
                 //        pattern: "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                           name: "areas", "areas",
+                           pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
             });

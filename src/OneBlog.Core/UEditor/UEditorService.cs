@@ -9,7 +9,7 @@ namespace OneBlog.Editor
 {
     public class UEditorService
     {
-        public UEditorService(IHostingEnvironment env)
+        public UEditorService(IWebHostEnvironment env)
         {
             if (string.IsNullOrWhiteSpace(EditorConfig.WebRootPath))
             {

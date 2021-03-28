@@ -12,10 +12,10 @@ namespace OneBlog.Helpers
 
         static AvatarHelper()
         {
-            for (int i = 1; i <= 10; i++)
-            {
-                Defalut.Add(string.Format("http://cdn.datiancun.com/static/avatar/{0}.png", i));
-            }
+            //for (int i = 1; i <= 10; i++)
+            //{
+            //    Defalut.Add(string.Format("http://cdn.datiancun.com/static/avatar/{0}.png", i));
+            //}
         }
 
         /// <summary>

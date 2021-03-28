@@ -12,10 +12,10 @@ namespace OneBlog.Services
   public class MailService : IMailService
   {
     private IConfiguration _conf;
-    private IHostingEnvironment _env;
+    private IWebHostEnvironment _env;
     private ILogger<MailService> _logger;
 
-    public MailService(IHostingEnvironment env, IConfiguration conf, ILogger<MailService> logger)
+    public MailService(IWebHostEnvironment env, IConfiguration conf, ILogger<MailService> logger)
     {
       _env = env;
       _conf = conf;

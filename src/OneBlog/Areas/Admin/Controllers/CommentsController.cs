@@ -140,9 +140,12 @@ namespace OneBlog.Areas.Admin.Controllers
             var comment = await commentRepository.GetFirstOrDefaultAsync(predicate: m => m.Id == id);
             if (comment != null)
             {
-                var list = GetChildren(commentRepository, new List<Comment>() { comment });
-                commentRepository.Delete(list);
-                await _unitOfWork.SaveChangesAsync();
+                var list = await GetChildren(commentRepository, new List<Comment>() { comment });
+                foreach (var item in list)
+                {
+                    commentRepository.Delete(item.Id);
+                    await _unitOfWork.SaveChangesAsync();
+                }
             }
             return Ok();
         }

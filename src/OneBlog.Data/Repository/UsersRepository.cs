@@ -156,9 +156,8 @@ namespace OneBlog.Data
             {
                 DisplayName = user.DisplayName,
                 Signature = user.Signature,
-                PhotoUrl = user.Avatar
+                PhotoUrl = $"/account/avatar/{SS.Toolkit.Helpers.SecurityHelper.MD5(user.Email)}"
             };
-
         }
 
 

@@ -22,7 +22,7 @@ namespace OneBlog.Controllers
     [Route("account")]
     public class AccountController : Controller
     {
-        private readonly IHostingEnvironment _env;
+        private readonly IWebHostEnvironment _env;
         private readonly AppDbContext _context;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
@@ -33,7 +33,7 @@ namespace OneBlog.Controllers
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             IMailService mailService,
-            IHostingEnvironment env,
+            IWebHostEnvironment env,
             ILoggerFactory loggerFactory)
         {
             _context = context;
@@ -204,7 +204,7 @@ namespace OneBlog.Controllers
             if (ModelState.IsValid)
             {
                 var user = new AppUser { UserName = model.Email, Email = model.Email, DisplayName = model.DisplayName };
-                user.Avatar = AvatarHelper.GetRandomAvatar();
+                user.Avatar = $"/account/avatar/{SS.Toolkit.Helpers.SecurityHelper.MD5(model.Email)}";
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -818,7 +818,6 @@ namespace OneBlog.Controllers
                     fileName = avatar;
                 }
             }
-
             using (var fs = System.IO.File.OpenRead(fileName))
             {
                 var buffer = new byte[fs.Length];
