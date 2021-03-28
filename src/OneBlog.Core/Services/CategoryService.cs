@@ -20,9 +20,7 @@ namespace OneBlog.Core.Services
         {
             var categoryRepository = _unitOfWork.GetRepository<Category>();
             var items = new List<CategoryItem>();
-            var query = categoryRepository.GetList(
-                include: b => b.Include(a => a.PostsInCategories),
-                selector: c => DataMapper.Parse(c))
+            var query = categoryRepository.GetAll().Include(a => a.PostsInCategories).Select(c => DataMapper.Parse(c))
                 .Skip(skip);
             if (take > 0)
             {
@@ -106,9 +104,7 @@ namespace OneBlog.Core.Services
         {
             var categoryRepository = _unitOfWork.GetRepository<Category>();
             var items = new List<CategoryItem>();
-            var query = categoryRepository.GetList(
-                include: b => b.Include(a => a.PostsInCategories),
-                selector: c => DataMapper.Parse(c));
+            var query = categoryRepository.GetAll().Include(a => a.PostsInCategories).Select(c => DataMapper.Parse(c));
             var list = await query.ToListAsync();
             return list;
         }

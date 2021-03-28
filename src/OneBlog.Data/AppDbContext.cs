@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Mappings;
-using Microsoft.EntityFrameworkCore.Providers;
 using SS.Toolkit.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace OneBlog.Data
@@ -51,16 +53,41 @@ namespace OneBlog.Data
             builder.Entity<Comment>().ToTable("Comments");
             //DataProviderFactory.OnModelCreating(builder);
             var currentAssembly = typeof(AppDbContext).GetTypeInfo().Assembly;
-            var typesToRegister = currentAssembly.GetTypes<BaseEntityMapping>();//获取所有数据提供类型
-            foreach (var type in typesToRegister)
+            try
             {
-                type.Execute(builder);
+                var typesToRegister = GetTypes<BaseEntityMapping>(currentAssembly);//获取所有数据提供类型
+                foreach (var type in typesToRegister)
+                {
+                    type.Execute(builder);
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
 
+        public IEnumerable<T> GetTypes<T>(Assembly assembly)
+        {
+            List<T> list = new List<T>();
+            foreach (Type item2 in assembly.GetTypes().Where(delegate (Type t)
+            {
+                if (t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract)
+                {
+                    return typeof(T).IsAssignableFrom(t);
+                }
+                return false;
+            }).ToList())
+            {
+                T item = (T)Activator.CreateInstance(item2);
+                list.Add(item);
+            }
+            return list;
+        }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            DataProviderFactory.OnConfiguring(optionsBuilder);
             base.OnConfiguring(optionsBuilder);
         }
     }

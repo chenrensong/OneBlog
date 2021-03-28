@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.5" />
-    <PackageReference Include="Autofac" Version="4.9.2" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="DevZH.Qiniu" Version="6.2.2.2" />
     <PackageReference Include="HtmlAgilityPack.NetCore" Version="1.5.0.1" />
-    <PackageReference Include="HtmlSanitizer" Version="4.0.217" />
+    <PackageReference Include="HtmlSanitizer" Version="5.0.376" />
     <PackageReference Include="SmallCode.AspNetCore.AntiXSS" Version="1.0.0" />
     <PackageReference Include="SS.Toolkit" Version="2.1.0" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />

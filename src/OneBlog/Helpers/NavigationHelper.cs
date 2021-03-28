@@ -41,9 +41,7 @@ namespace OneBlog.Helpers
 
 
             var categoryRepository = _unitOfWork.GetRepository<Category>();
-            var category = categoryRepository.GetList(
-            include: b => b.Include(a => a.PostsInCategories)
-            ).Select(c => new CategoryItem
+            var category = categoryRepository.GetAll().Include(a => a.PostsInCategories).Select(c => new CategoryItem
             {
                 Id = c.Id,
                 Parent = new SelectOption() { OptionName = c.ParentName, OptionValue = c.ParentId },

@@ -1,5 +1,4 @@
-﻿// global object
-BlogEngine = {
+﻿BlogEngine = {
 
     $: function (id) {
         return document.getElementById(id);
@@ -143,6 +142,10 @@ BlogEngine = {
                 BlogEngine.$("status").innerHTML = "Thank you for the feedback.";
                 BlogEngine.$("status").className = "success";
                 BlogEngine.toggleCommentSavingIndicators(false);
+
+                setTimeout(() => {
+                    window.LetterAvatar.transform();
+                }, 10)
             },
             error: function (data) {
                 l.stop();
@@ -299,7 +302,7 @@ BlogEngine = {
         return true;
     }
     ,
-   
+
 
     addBbCode: function (v) {
         try {
@@ -646,7 +649,7 @@ BlogEngine = {
     }
     ,
     init: function () {
-        
+
         BlogEngine.comments.emailBox = $("#Email");
         BlogEngine.comments.nameBox = $("#UserName");
         BlogEngine.comments.contentBox = $("#Content");

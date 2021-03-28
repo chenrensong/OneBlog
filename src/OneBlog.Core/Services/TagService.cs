@@ -20,10 +20,8 @@ namespace OneBlog.Core.Services
         {
             var tagRepository = _unitOfWork.GetRepository<Tag>();
             var items = new List<TagItem>();
-            var query = tagRepository.GetList(
-                include: b => b.Include(a => a.TagsInPosts),
-                orderBy: c => c.OrderByDescending(m => m.TagsInPosts.Count),
-                selector: m => DataMapper.Parse(m)
+            var query = tagRepository.GetAll().Include(a => a.TagsInPosts)
+                .OrderByDescending(m => m.TagsInPosts.Count).Select(m => DataMapper.Parse(m)
                 ).Skip(skip);
             if (take > 0)
             {

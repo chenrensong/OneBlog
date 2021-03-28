@@ -23,11 +23,8 @@ namespace OneBlog.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(string id)
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
-            var comments = await commentRepository.GetListAsync(
-                predicate: m => m.Posts.Id == id,
-                include: x => x.Include(m => m.Posts),
-                orderBy: x => x.OrderBy(m => m.CreateDate),
-                selector: c => new CommentItem
+            var comments = await commentRepository.GetAll().Where(m => m.Posts.Id == id).Include(m => m.Posts)
+                .OrderBy(m => m.CreateDate).Select(c => new CommentItem
                 {
                     Id = c.Id,
                     ParentId = c.ParentId,
@@ -39,7 +36,7 @@ namespace OneBlog.ViewComponents
                     DateCreated = c.CreateDate.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
                     //HasChildren = (commentRepository.Count(m => m.ParentId == c.Id, null) > 0),
                     Ip = c.Ip
-                });
+                }).ToListAsync();
 
             // instantiate object
             var nestedComments = new List<CommentItem>();

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Collections;
 
 namespace OneBlog.Core.Services
 {
@@ -32,10 +33,9 @@ namespace OneBlog.Core.Services
         private IQueryable<PostItem> Query(string term = null, string categoryId = null, string tag = null, string authorId = null)
         {
             var postRepository = _unitOfWork.GetRepository<Post>();
-            var query = postRepository.GetList(
-                include: a => a.Include(m => m.Author).Include(m => m.PostsInCategories).ThenInclude(m => m.Categories),
-                orderBy: c => c.OrderByDescending(m => m.DatePublished)
-                );
+            var query = postRepository.GetAll().Include(m => m.Author)
+                .Include(m => m.PostsInCategories).ThenInclude(m => m.Categories)
+                .OrderByDescending(m => m.DatePublished).Select(m => m);
 
             if (!string.IsNullOrEmpty(authorId))
             {
@@ -69,11 +69,8 @@ namespace OneBlog.Core.Services
         public async Task<IList<PostItem>> GetAll()
         {
             var postRepository = _unitOfWork.GetRepository<Post>();
-            var query = postRepository.GetList(
-                  include: a => a.Include(m => m.Author).Include(m => m.PostsInCategories),
-                  orderBy: c => c.OrderByDescending(m => m.DatePublished),
-                  selector: m => DataMapper.Parse(m)
-                  );
+            var query = postRepository.GetAll().Include(m => m.Author).Include(m => m.PostsInCategories)
+                .OrderByDescending(m => m.DatePublished).Select(m => DataMapper.Parse(m));
             return await query.ToListAsync();
         }
 

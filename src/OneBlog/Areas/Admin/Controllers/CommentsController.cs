@@ -27,22 +27,20 @@ namespace OneBlog.Areas.Admin.Controllers
         {
             var commentRepository = _unitOfWork.GetRepository<Comment>();
             var items = new List<CommentItem>();
-            var t = await commentRepository.GetListAsync();
-            var query = commentRepository.GetList(
-                include: b => b.Include(a => a.Posts),
-                selector: c => new CommentItem
-                {
-                    Id = c.Id,
-                    ParentId = c.ParentId,
-                    PostId = c.Posts.Id,
-                    Content = c.Content,
-                    IsApproved = c.IsApproved,
-                    DisplayName = c.DisplayName,
-                    Email = c.Email,
-                    DateCreated = c.CreateDate.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
-                    Ip = c.Ip,
-                    RelativeLink= $"/{c.Posts.Id}#id_{c.Id}"
-                })
+            var t = commentRepository.GetAll();
+            var query = commentRepository.GetAll().Include(a => a.Posts).Select(c => new CommentItem
+            {
+                Id = c.Id,
+                ParentId = c.ParentId,
+                PostId = c.Posts.Id,
+                Content = c.Content,
+                IsApproved = c.IsApproved,
+                DisplayName = c.DisplayName,
+                Email = c.Email,
+                DateCreated = c.CreateDate.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
+                Ip = c.Ip,
+                RelativeLink = $"/{c.Posts.Id}#id_{c.Id}"
+            })
                 .Skip(skip);
             if (take > 0)
             {
@@ -51,7 +49,7 @@ namespace OneBlog.Areas.Admin.Controllers
             var list = await query.ToListAsync();
             foreach (var item in list)
             {
-                item.HasChildren = (commentRepository.Count(m => m.ParentId == item.Id, null) > 0);
+                item.HasChildren = (commentRepository.Count(m => m.ParentId == item.Id) > 0);
             }
             var commentsResult = new CommentsResult();
             commentsResult.Items = list;
@@ -192,7 +190,7 @@ namespace OneBlog.Areas.Admin.Controllers
             List<Comment> temp = new List<Comment>();
             foreach (var item in comments)
             {
-                var newList = await commentRepository.GetListAsync(predicate: m => m.ParentId == item.Id);
+                var newList = await commentRepository.GetAll().Where(predicate: m => m.ParentId == item.Id).ToListAsync();
                 newList = await GetChildren(commentRepository, newList);
                 temp.AddRange(newList);
             }

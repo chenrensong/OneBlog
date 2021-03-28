@@ -26,7 +26,7 @@ namespace OneBlog.Helpers
         {
             get
             {
-                var accessor = IocContainer.Get<IActionContextAccessor>(); 
+                var accessor = IocContainer.Get<IActionContextAccessor>();
                 return accessor.ActionContext;
             }
         }
@@ -61,7 +61,7 @@ namespace OneBlog.Helpers
 
         public static T GetHeaderValueAs<T>(string headerName)
         {
-            StringValues values;
+            StringValues values = default;
             if (HttpContext?.Request?.Headers?.TryGetValue(headerName, out values) ?? false)
             {
                 string rawValues = values.ToString();   // writes out as Csv when there are multiple.
